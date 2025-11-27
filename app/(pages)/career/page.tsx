@@ -57,7 +57,7 @@ export default function CareerPage() {
                <div className="lg:col-span-6 flex justify-center lg:justify-end">
                   <div className="w-full max-w-sm">
                      <Image
-                        src="/career/career_hero.png"
+                        src="/career/career_hero.webp"
                         alt="hero"
                         width={540}
                         height={540}
@@ -74,7 +74,7 @@ export default function CareerPage() {
                <div className="lg:col-span-6 ">
                   <div className="bg-gray-100 rounded overflow-hidden ">
                      <Image
-                        src="/career/career2.png"
+                        src="/career/career2.webp"
                         alt="p1"
                         width={400}
                         height={400}
