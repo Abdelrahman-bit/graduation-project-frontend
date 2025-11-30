@@ -124,3 +124,10 @@ export const getInstructorCourses = async () => {
       await apiClient.get<CourseResponse<CourseDTO[]>>('/courses');
    return data.data;
 };
+
+export const deleteCourse = async (courseId: string) => {
+   const { data } = await apiClient.delete<CourseResponse<null>>(
+      `/courses/${courseId}`
+   );
+   return data.data;
+};

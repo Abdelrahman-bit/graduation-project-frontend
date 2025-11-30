@@ -40,11 +40,11 @@ export const uploadToCloudinary = async (
    return response.json();
 };
 
-export const deleteFromCloudinary = async (publicId: string) => {
-   // This would typically be done from the backend for security
-   // For now, we'll just log it
-   console.log('Delete from Cloudinary:', publicId);
-};
+// export const deleteFromCloudinary = async (publicId: string) => {
+//    // This would typically be done from the backend for security
+//    // For now, we'll just log it
+//    console.log('Delete from Cloudinary:', publicId);
+// };
 
 export const getCloudinaryUrl = (
    publicId: string,
