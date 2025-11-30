@@ -17,9 +17,50 @@ export type CourseBasicInfoSchema = z.infer<typeof courseBasicInfoSchema>;
 
 export const courseAdvancedInfoSchema = z.object({
    description: z.string().min(30),
-   whatYouWillLearn: z.array(z.string().min(5)).length(4),
-   targetAudience: z.array(z.string().min(5)).length(4),
-   requirements: z.array(z.string().min(5)).length(4),
+   whatYouWillLearn: z
+      .array(z.string())
+      .min(1)
+      .max(8)
+      .refine(
+         (arr) => arr.some((item) => item.trim().length >= 5),
+         'At least one item must have at least 5 characters'
+      ),
+   targetAudience: z
+      .array(z.string())
+      .min(1)
+      .max(8)
+      .refine(
+         (arr) => arr.some((item) => item.trim().length >= 5),
+         'At least one item must have at least 5 characters'
+      ),
+   requirements: z
+      .array(z.string())
+      .min(1)
+      .max(8)
+      .refine(
+         (arr) => arr.some((item) => item.trim().length >= 5),
+         'At least one item must have at least 5 characters'
+      ),
+   thumbnailUrl: z.string().optional(),
+   trailerUrl: z.string().optional(),
+   thumbnail: z
+      .object({
+         url: z.string(),
+         publicId: z.string(),
+         fileName: z.string(),
+         fileType: z.string(),
+         duration: z.number().optional(),
+      })
+      .optional(),
+   trailer: z
+      .object({
+         url: z.string(),
+         publicId: z.string(),
+         fileName: z.string(),
+         fileType: z.string(),
+         duration: z.number().optional(),
+      })
+      .optional(),
 });
 
 export type CourseAdvancedInfoSchema = z.infer<typeof courseAdvancedInfoSchema>;

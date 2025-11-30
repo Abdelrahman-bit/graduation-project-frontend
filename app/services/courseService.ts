@@ -51,6 +51,10 @@ export type CourseAdvancedInfoPayload = {
    whatYouWillLearn: string[];
    targetAudience: string[];
    requirements: string[];
+   thumbnailUrl?: string;
+   trailerUrl?: string;
+   thumbnail?: CourseMedia;
+   trailer?: CourseMedia;
 };
 
 export const createCourseDraft = async (payload: {
@@ -106,5 +110,17 @@ export const updateCourseStatus = async (
       `/courses/${courseId}/status`,
       { status }
    );
+   return data.data;
+};
+
+export const getInstructorDraftCourses = async () => {
+   const { data } =
+      await apiClient.get<CourseResponse<CourseDTO[]>>('/courses/drafts');
+   return data.data;
+};
+
+export const getInstructorCourses = async () => {
+   const { data } =
+      await apiClient.get<CourseResponse<CourseDTO[]>>('/courses');
    return data.data;
 };

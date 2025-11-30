@@ -24,11 +24,13 @@ const defaultBasicInfo: CourseBasicInfo = {
 
 const defaultAdvancedInfo: CourseAdvancedInfo = {
    description: '',
-   whatYouWillLearn: ['', '', '', ''],
-   targetAudience: ['', '', '', ''],
-   requirements: ['', '', '', ''],
+   whatYouWillLearn: [''],
+   targetAudience: [''],
+   requirements: [''],
    thumbnail: null,
    trailer: null,
+   thumbnailUrl: undefined,
+   trailerUrl: undefined,
 };
 
 const defaultCurriculum: CourseCurriculum = {

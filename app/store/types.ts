@@ -58,6 +58,8 @@ export interface CourseAdvancedInfo {
    requirements: string[];
    thumbnail?: File | UploadedMedia | null;
    trailer?: File | UploadedMedia | null;
+   thumbnailUrl?: string;
+   trailerUrl?: string;
 }
 
 export interface Lecture {
