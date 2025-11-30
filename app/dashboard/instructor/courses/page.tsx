@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import toast from 'react-hot-toast';
 import { CourseDTO } from '@/app/services/courseService';
-import { Trash2 } from 'lucide-react';
+import { CourseCard } from '@/app/components/dashboard/instructor/CourseCard';
 
 export default function InstructorCoursesPage() {
    const queryClient = useQueryClient();
@@ -47,52 +47,66 @@ export default function InstructorCoursesPage() {
       return <div>Loading...</div>;
    }
 
+   const publishedCourses = courses?.filter(
+      (course: CourseDTO) => course.status === 'published'
+   );
+   const draftCourses = courses?.filter(
+      (course: CourseDTO) => course.status === 'draft'
+   );
+   const inReviewCourses = courses?.filter(
+      (course: CourseDTO) => course.status === 'review'
+   );
+
    return (
       <div className="container mx-auto p-4">
          <h1 className="text-2xl font-bold mb-4">My Courses</h1>
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses?.map((course: CourseDTO) => (
-               <div
-                  key={course._id}
-                  className="border rounded-lg p-4 shadow-sm"
-               >
-                  <h2 className="text-xl font-semibold">
-                     {course.basicInfo.title}
-                  </h2>
-                  <p className="text-gray-500">{course.basicInfo.subtitle}</p>
-                  <div className="mt-4 flex justify-end gap-2">
-                     <Dialog>
-                        <DialogTrigger asChild>
-                           <Button variant="destructive" size="sm">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                           </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                           <DialogHeader>
-                              <DialogTitle>Are you sure?</DialogTitle>
-                              <DialogDescription>
-                                 This action cannot be undone. This will
-                                 permanently delete the course and all its
-                                 resources.
-                              </DialogDescription>
-                           </DialogHeader>
-                           <DialogFooter>
-                              <DialogClose asChild>
-                                 <Button variant="ghost">Cancel</Button>
-                              </DialogClose>
-                              <Button
-                                 variant="destructive"
-                                 onClick={() => handleDelete(course._id)}
-                              >
-                                 Delete
-                              </Button>
-                           </DialogFooter>
-                        </DialogContent>
-                     </Dialog>
-                  </div>
-               </div>
-            ))}
+
+         <div>
+            <h2 className="text-xl font-semibold mb-2">Published Courses</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               {publishedCourses?.map((course: CourseDTO) => (
+                  <CourseCard
+                     key={course._id}
+                     course={course}
+                     onDelete={handleDelete}
+                  />
+               ))}
+            </div>
+            {publishedCourses?.length === 0 && (
+               <p className="text-gray-500">No published courses yet.</p>
+            )}
+         </div>
+
+         <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-2">In Review Courses</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               {inReviewCourses?.map((course: CourseDTO) => (
+                  <CourseCard
+                     key={course._id}
+                     course={course}
+                     onDelete={handleDelete}
+                  />
+               ))}
+            </div>
+            {inReviewCourses?.length === 0 && (
+               <p className="text-gray-500">No courses in review.</p>
+            )}
+         </div>
+
+         <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-2">Draft Courses</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               {draftCourses?.map((course: CourseDTO) => (
+                  <CourseCard
+                     key={course._id}
+                     course={course}
+                     onDelete={handleDelete}
+                  />
+               ))}
+            </div>
+            {draftCourses?.length === 0 && (
+               <p className="text-gray-500">No draft courses.</p>
+            )}
          </div>
       </div>
    );

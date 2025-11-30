@@ -88,7 +88,7 @@ export interface CourseBuilderState {
    basicInfo: CourseBasicInfo;
    advancedInfo: CourseAdvancedInfo;
    curriculum: CourseCurriculum;
-   status: 'draft' | 'review' | 'published';
+   status: 'draft' | 'review' | 'published' | 'rejected';
    isSaving: boolean;
 }
 
