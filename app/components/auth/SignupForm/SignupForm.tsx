@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+// import { signUp } from '@/app/services/authService';
 import { Eye, EyeOff } from 'lucide-react';
 
 const SignupForm = () => {
@@ -58,41 +59,9 @@ const SignupForm = () => {
       ev.preventDefault();
       setErrors({});
       if (!validate()) return;
+
       setSubmitting(true);
-      try {
-         const res = await fetch('/api/auth/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-               firstName,
-               lastName,
-               username,
-               email,
-               password,
-            }),
-            credentials: 'include',
-         });
-
-         if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            setErrors({
-               submit: body?.message || `Request failed (${res.status})`,
-            });
-            setSubmitting(false);
-            return;
-         }
-
-         const data = await res.json().catch(() => ({}));
-
-         if (typeof window !== 'undefined' && data?.token) {
-            localStorage.setItem('token', data.token);
-         }
-
-         window.location.href = '/';
-      } catch (err) {
-         setErrors({ submit: 'Network error. Please try again.' });
-         setSubmitting(false);
-      }
+      // TODO: Implement sign up logic
    };
 
    return (
