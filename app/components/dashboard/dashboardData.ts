@@ -6,6 +6,8 @@ import {
    BookCheck,
    UserPlus,
    PackagePlus,
+   MessageSquare,
+   Wallet,
 } from 'lucide-react';
 
 export const getSidebarItems = (role: 'instructor' | 'student' | 'admin') => {
@@ -65,6 +67,5 @@ export const getSidebarItems = (role: 'instructor' | 'student' | 'admin') => {
          items = [...commonItems];
          break;
    }
-
    return items;
 };
