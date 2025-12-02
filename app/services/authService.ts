@@ -10,3 +10,8 @@ export const signUp = async (userData: SignUpData) => {
 
    return data;
 };
+
+export const login = async (credentials: any) => {
+   const { data } = await apiClient.post('/auth/login', credentials);
+   return data;
+};

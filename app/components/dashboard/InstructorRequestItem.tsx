@@ -3,7 +3,16 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export default function InstructorRequestItem({ name, email, phone }) {
+interface InstructorRequestItemProps {
+   name: string;
+   email: string;
+   phone: string;
+}
+export default function InstructorRequestItem({
+   name,
+   email,
+   phone,
+}: InstructorRequestItemProps) {
    return (
       <Card className="w-full p-4 shadow-sm border border-gray-200 rounded-xl  hover:translate-y-1 duration-300 ">
          <CardContent className="flex items-center justify-between p-0">
