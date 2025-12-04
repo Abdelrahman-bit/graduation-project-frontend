@@ -28,9 +28,13 @@ export const getSidebarItems = (
             {
                label: 'Create New Course',
                icon: PlusCircle,
-               href: '/dashboard/create-course',
+               href: '/dashboard/instructor/create-course',
             },
-            { label: 'My Courses', icon: BookOpen, href: '/dashboard/courses' },
+            {
+               label: 'My Courses',
+               icon: BookOpen,
+               href: '/dashboard/instructor/courses',
+            },
             ...commonItems,
          ];
          break;

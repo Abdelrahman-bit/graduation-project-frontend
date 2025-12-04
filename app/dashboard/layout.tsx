@@ -9,7 +9,7 @@ export default function DashboardLayout({
    children: React.ReactNode;
 }) {
    // هنا بنحدد الدور يدوياً عشان نجرب، بعدين ممكن تجيبيه من الداتابيز
-   const userRole = 'admin';
+   const userRole = 'instructor';
 
    return (
       <div className="min-h-screen bg-gray-50 flex">
