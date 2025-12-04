@@ -1,8 +1,11 @@
+'use client';
 import React from 'react';
 import Button from '../../global/Button/Button';
 import Image from 'next/image';
+import useBearStore from '@/app/store/useStore';
 
 export default function Hero() {
+   const { isAuthenticated } = useBearStore();
    return (
       <section className="bg-gray-scale-50 py-16 md:py-24 lg:min-h-[70vh] flex items-center">
          <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-12 lg:gap-8 items-center justify-between">
@@ -17,11 +20,11 @@ export default function Hero() {
                   <br className="hidden md:block" />
                   online and learn with expert anytime, anywhere.
                </p>
-
-               {/* Centered button on mobile */}
-               <div className="w-full flex justify-center lg:justify-start">
-                  <Button text="Create Account" type="primary" />
-               </div>
+               {!isAuthenticated && (
+                  <div className="w-full flex justify-center lg:justify-start">
+                     <Button text="Create Account" type="primary" />
+                  </div>
+               )}
             </div>
 
             {/* Image Section */}

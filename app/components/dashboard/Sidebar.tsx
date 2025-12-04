@@ -3,26 +3,48 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LogOut, GraduationCap } from 'lucide-react';
 import { getSidebarItems } from '../dashboard/dashboardData';
+import { useQuery } from '@tanstack/react-query';
+import {
+   getJoinRequests,
+   getInReviewCourses,
+} from '@/app/services/adminService';
 
 interface SidebarProps {
-   role: 'instructor' | 'student';
+   role: 'instructor' | 'student' | 'admin';
 }
 
 export default function Sidebar({ role }: SidebarProps) {
-   const navItems = getSidebarItems(role);
+   const { data: joinRequests } = useQuery({
+      queryKey: ['joinRequests'],
+      queryFn: getJoinRequests,
+      enabled: role === 'admin',
+   });
+
+   const { data: courseRequests } = useQuery({
+      queryKey: ['inReviewCourses'],
+      queryFn: getInReviewCourses,
+      enabled: role === 'admin',
+   });
+
+   const navItems = getSidebarItems(role, {
+      joinRequests: joinRequests?.length,
+      courseRequests: courseRequests?.length,
+   });
    const pathname = usePathname();
 
    return (
       <aside className="w-64 bg-[#1D2026] text-gray-400 flex flex-col h-screen fixed left-0 top-0 border-r border-gray-800 z-50">
          {/* Logo Area */}
-         <div className="h-20 flex items-center px-6 border-b border-gray-800">
-            <div className="flex items-center gap-2 text-white font-bold text-xl">
-               <span className="text-orange-500 text-2xl">
-                  <GraduationCap />
-               </span>{' '}
-               E-tutor
+         <Link href="/" className="no-underline">
+            <div className="h-20 flex items-center px-6 border-b border-gray-800 cursor-pointer">
+               <div className="flex items-center gap-2 text-white font-bold text-xl">
+                  <span className="text-orange-500 text-2xl">
+                     <GraduationCap />
+                  </span>{' '}
+                  E-tutor
+               </div>
             </div>
-         </div>
+         </Link>
 
          {/* Navigation Items */}
          <nav className="flex-1 py-6 space-y-1 overflow-y-auto">
@@ -38,7 +60,7 @@ export default function Sidebar({ role }: SidebarProps) {
                      <item.icon size={20} />
                      <span className="text-sm font-medium">{item.label}</span>
                   </div>
-                  {item.badge && (
+                  {'badge' in item && item.badge && (
                      <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
                         {item.badge}
                      </span>

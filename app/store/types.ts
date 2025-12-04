@@ -13,6 +13,7 @@ export interface BearState {
    count: number;
    user: User | null;
    isAuthenticated: boolean;
+   loading: boolean;
 }
 
 // 2. Define the shape of your actions (functions)
@@ -107,3 +108,12 @@ export interface CourseBuilderActions {
 }
 
 export type CourseBuilderStore = CourseBuilderState & CourseBuilderActions;
+
+export interface SignUpData {
+   firstName?: string;
+   lastName?: string;
+   username?: string;
+   email?: string;
+   password?: string;
+   confirmPassword?: string;
+}

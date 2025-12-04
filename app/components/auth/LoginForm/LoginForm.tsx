@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useBearStore from '@/app/store/useStore';
+import { login } from '@/app/services/authService';
 
 export default function LoginForm() {
    const router = useRouter();
@@ -36,32 +36,31 @@ export default function LoginForm() {
       if (!validate()) return;
       setSubmitting(true);
       try {
-         const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, remember }),
-            credentials: 'include',
-         });
+         const { token, user } = await login({ email, password, remember });
+         localStorage.setItem('token', token);
+         localStorage.setItem('user', JSON.stringify(user));
 
-         if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            setErrors({
-               submit: body?.message || `Request failed (${res.status})`,
-            });
-            setSubmitting(false);
-            return;
+         // Initialize auth state in Zustand store before navigation
+         initializeAuth();
+
+         if (user.role === 'student') {
+            router.push('/courses');
+         } else if (user.role === 'instructor') {
+            router.push('/dashboard/instructor');
+         } else if (user.role === 'admin') {
+            router.push('/dashboard/admin');
+         }
+      } catch (err: any) {
+         // Improved error handling with fallback messages
+         let errorMessage = 'Login failed. Please try again.';
+
+         if (err?.response?.data?.message) {
+            errorMessage = err.response.data.message;
+         } else if (err?.message) {
+            errorMessage = err.message;
          }
 
-         const data = await res.json().catch(() => ({}));
-
-         if (data?.token) {
-            localStorage.setItem('token', data.token);
-            initializeAuth();
-         }
-
-         router.push('/');
-      } catch (err) {
-         setErrors({ submit: 'Network error. Please try again.' });
+         setErrors({ submit: errorMessage });
          setSubmitting(false);
       }
    };
@@ -106,7 +105,41 @@ export default function LoginForm() {
                      onClick={() => setShowPassword(!showPassword)}
                   >
                      {/* placeholder for visibility toggle if needed */}
-                     {showPassword ? <Eye /> : <EyeOff />}
+                     {showPassword ? (
+                        <svg
+                           xmlns="http://www.w3.org/2000/svg"
+                           width="24"
+                           height="24"
+                           viewBox="0 0 24 24"
+                           fill="none"
+                           stroke="currentColor"
+                           strokeWidth="2"
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
+                           className="lucide lucide-eye"
+                        >
+                           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                           <circle cx="12" cy="12" r="3" />
+                        </svg>
+                     ) : (
+                        <svg
+                           xmlns="http://www.w3.org/2000/svg"
+                           width="24"
+                           height="24"
+                           viewBox="0 0 24 24"
+                           fill="none"
+                           stroke="currentColor"
+                           strokeWidth="2"
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
+                           className="lucide lucide-eye-off"
+                        >
+                           <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                           <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                           <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                           <line x1="2" x2="22" y1="2" y2="22" />
+                        </svg>
+                     )}
                   </button>
                </div>
                {errors.password && (

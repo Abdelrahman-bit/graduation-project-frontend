@@ -2,44 +2,85 @@ import {
    LayoutDashboard,
    PlusCircle,
    BookOpen,
-   Wallet,
-   MessageSquare,
    Settings,
+   BookCheck,
+   UserPlus,
+   PackagePlus,
+   MessageSquare,
+   Wallet,
+   Users,
 } from 'lucide-react';
 
-export const getSidebarItems = (role: 'instructor' | 'student') => {
+export const getSidebarItems = (
+   role: 'instructor' | 'student' | 'admin',
+   counts?: { joinRequests?: number; courseRequests?: number }
+) => {
    const commonItems = [
       { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
       { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
    ];
 
-   if (role === 'instructor') {
-      return [
-         { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-         {
-            label: 'Create New Course',
-            icon: PlusCircle,
-            href: '/dashboard/instructor/create-course',
-         },
-         {
-            label: 'My Courses',
-            icon: BookOpen,
-            href: '/dashboard/instructor/courses',
-         },
-         {
-            label: 'Earning',
-            icon: Wallet,
-            href: '/dashboard/instructor/earnings',
-         },
-         {
-            label: 'Message',
-            icon: MessageSquare,
-            href: '/dashboard/instructor/messages',
-            badge: 3,
-         },
-         { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
-      ];
-   }
+   let items = [];
 
-   return commonItems;
+   switch (role) {
+      case 'instructor':
+         items = [
+            {
+               label: 'Create New Course',
+               icon: PlusCircle,
+               href: '/dashboard/instructor/create-course',
+            },
+            {
+               label: 'My Courses',
+               icon: BookOpen,
+               href: '/dashboard/instructor/courses',
+            },
+            ...commonItems,
+         ];
+         break;
+
+      case 'student':
+         items = [
+            {
+               label: 'My Courses',
+               icon: BookOpen,
+               href: '/dashboard/student/courses',
+            },
+            {
+               label: 'My Exams',
+               icon: BookCheck,
+               href: '/dashboard/student/exams',
+            },
+            ...commonItems,
+         ];
+         break;
+
+      case 'admin':
+         items = [
+            {
+               label: 'Join Requests',
+               icon: UserPlus,
+               href: '/dashboard/admin/join-requests',
+               badge: counts?.joinRequests,
+            },
+            {
+               label: 'Course Requests',
+               icon: PackagePlus,
+               href: '/dashboard/admin/course-requests',
+               badge: counts?.courseRequests,
+            },
+            {
+               label: 'Instructors',
+               icon: Users,
+               href: '/dashboard/admin/instructors',
+            },
+            ...commonItems,
+         ];
+         break;
+
+      default:
+         items = [...commonItems];
+         break;
+   }
+   return items;
 };
