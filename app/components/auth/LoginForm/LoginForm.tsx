@@ -1,10 +1,12 @@
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import useBearStore from '@/app/store/useStore';
 import { login } from '@/app/services/authService';
 
 export default function LoginForm() {
    const router = useRouter();
+   const { initializeAuth } = useBearStore();
    const [showPassword, setShowPassword] = React.useState(false);
    const [email, setEmail] = React.useState('');
    const [password, setPassword] = React.useState('');
