@@ -13,6 +13,7 @@ export interface BearState {
    count: number;
    user: User | null;
    isAuthenticated: boolean;
+   loading: boolean;
 }
 
 // 2. Define the shape of your actions (functions)

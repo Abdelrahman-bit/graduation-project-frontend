@@ -35,14 +35,16 @@ export default function Sidebar({ role }: SidebarProps) {
    return (
       <aside className="w-64 bg-[#1D2026] text-gray-400 flex flex-col h-screen fixed left-0 top-0 border-r border-gray-800 z-50">
          {/* Logo Area */}
-         <div className="h-20 flex items-center px-6 border-b border-gray-800">
-            <div className="flex items-center gap-2 text-white font-bold text-xl">
-               <span className="text-orange-500 text-2xl">
-                  <GraduationCap />
-               </span>{' '}
-               E-tutor
+         <Link href="/" className="no-underline">
+            <div className="h-20 flex items-center px-6 border-b border-gray-800 cursor-pointer">
+               <div className="flex items-center gap-2 text-white font-bold text-xl">
+                  <span className="text-orange-500 text-2xl">
+                     <GraduationCap />
+                  </span>{' '}
+                  E-tutor
+               </div>
             </div>
-         </div>
+         </Link>
 
          {/* Navigation Items */}
          <nav className="flex-1 py-6 space-y-1 overflow-y-auto">

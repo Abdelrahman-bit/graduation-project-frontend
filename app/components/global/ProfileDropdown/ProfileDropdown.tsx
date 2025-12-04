@@ -43,7 +43,7 @@ export default function ProfileDropdown() {
          >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 hover:border-orange-500 transition-colors">
                <Image
-                  src={user.avatar || '/avatar.jpg'}
+                  src={user.avatar || '/avatar.png'}
                   alt={`${user.name} profile picture`}
                   width={40}
                   height={40}
@@ -85,7 +85,11 @@ export default function ProfileDropdown() {
 
                   {(user.role === 'instructor' || user.role === 'admin') && (
                      <Link
-                        href="/dashboard"
+                        href={
+                           user.role === 'admin'
+                              ? '/dashboard/admin'
+                              : '/dashboard/instructor'
+                        }
                         className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setIsOpen(false)}
                      >

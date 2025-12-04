@@ -39,6 +39,10 @@ export default function LoginForm() {
          const { token, user } = await login({ email, password, remember });
          localStorage.setItem('token', token);
          localStorage.setItem('user', JSON.stringify(user));
+
+         // Initialize auth state in Zustand store before navigation
+         initializeAuth();
+
          if (user.role === 'student') {
             router.push('/courses');
          } else if (user.role === 'instructor') {
@@ -47,7 +51,16 @@ export default function LoginForm() {
             router.push('/dashboard/admin');
          }
       } catch (err: any) {
-         setErrors({ submit: err.response.data.message });
+         // Improved error handling with fallback messages
+         let errorMessage = 'Login failed. Please try again.';
+
+         if (err?.response?.data?.message) {
+            errorMessage = err.response.data.message;
+         } else if (err?.message) {
+            errorMessage = err.message;
+         }
+
+         setErrors({ submit: errorMessage });
          setSubmitting(false);
       }
    };
@@ -100,9 +113,9 @@ export default function LoginForm() {
                            viewBox="0 0 24 24"
                            fill="none"
                            stroke="currentColor"
-                           stroke-width="2"
-                           stroke-linecap="round"
-                           stroke-linejoin="round"
+                           strokeWidth="2"
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
                            className="lucide lucide-eye"
                         >
                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
@@ -116,9 +129,9 @@ export default function LoginForm() {
                            viewBox="0 0 24 24"
                            fill="none"
                            stroke="currentColor"
-                           stroke-width="2"
-                           stroke-linecap="round"
-                           stroke-linejoin="round"
+                           strokeWidth="2"
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
                            className="lucide lucide-eye-off"
                         >
                            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
