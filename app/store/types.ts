@@ -4,12 +4,16 @@
 export interface User {
    id: number;
    name: string;
+   email: string;
+   role: 'student' | 'instructor' | 'admin';
+   avatar?: string;
 }
 
 export interface BearState {
    count: number;
    user: User | null;
    isAuthenticated: boolean;
+   loading: boolean;
 }
 
 // 2. Define the shape of your actions (functions)
@@ -18,6 +22,7 @@ export interface BearActions {
    decrement: () => void;
    login: (userData: User) => void;
    logout: () => void;
+   initializeAuth: () => void;
 }
 
 // 3. Combine State and Actions for the final store signature
@@ -103,3 +108,12 @@ export interface CourseBuilderActions {
 }
 
 export type CourseBuilderStore = CourseBuilderState & CourseBuilderActions;
+
+export interface SignUpData {
+   firstName?: string;
+   lastName?: string;
+   username?: string;
+   email?: string;
+   password?: string;
+   confirmPassword?: string;
+}

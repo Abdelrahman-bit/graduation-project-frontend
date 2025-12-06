@@ -1,5 +1,6 @@
 // components/dashboard/Header.tsx
 import { Bell, Search } from 'lucide-react';
+import ProfileDropdown from '../global/ProfileDropdown/ProfileDropdown';
 
 export default function Header() {
    return (
@@ -30,7 +31,7 @@ export default function Header() {
             </button>
 
             <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold cursor-pointer">
-               U{/* if not image render U */}
+               <ProfileDropdown />
             </div>
          </div>
       </header>
