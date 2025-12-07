@@ -10,7 +10,7 @@ export const PhotoUpload = ({ currentAvatar }: PhotoUploadProps) => {
 
    return (
       <div className="w-full lg:w-[280px] shrink-0">
-         <div className="bg-gray-50 border border-dashed border-gray-300 rounded-sm p-6 flex flex-col items-center justify-center text-center h-[320px] relative overflow-hidden group">
+         <div className="bg-gray-50 border border-dashed border-gray-300 rounded-sm p-6 flex flex-col items-center justify-center text-center h-80 relative overflow-hidden group">
             <div className="w-32 h-32 bg-gray-200 mb-4 overflow-hidden relative rounded-full">
                {' '}
                {/* Rounded optional based on preference, currently square in original */}
