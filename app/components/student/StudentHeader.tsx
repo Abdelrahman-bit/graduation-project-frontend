@@ -10,6 +10,7 @@ export default function StudentHeader() {
       { name: 'Dashboard', href: '/student/dashboard' },
       { name: 'Courses', href: '/student/courses' },
       { name: 'Teachers', href: '/student/teachers' },
+      { name: 'Messages', href: '/student/studentMsgs' },
       { name: 'Wishlist', href: '/student/wishlist' },
       { name: 'Shopping Cart', href: '/student/shoppingCart' },
       { name: 'Settings', href: '/student/settings' },
