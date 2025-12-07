@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { apiClient } from '@/lib/http';
 import { accountSchema, AccountFormValues } from '../schemas';
+import toast from 'react-hot-toast';
 import { InputGroup, SaveButton, SectionTitle } from './SharedUI';
 import { PhotoUpload } from './PhotoUpload';
 
@@ -20,10 +21,7 @@ interface AccountFormProps {
 }
 
 export default function AccountForm({ userData }: AccountFormProps) {
-   // ... existing useForm ...
-   // (Skipping useForm lines for brevity in replace, targeting specific lines or using multi-replace if distant)
-   // Actually, since userData type change is at top and usage is at bottom, I should split or use multi-replace.
-   // Let's use multi-replace to be safe and clean.
+   const [currentAvatar, setCurrentAvatar] = useState(userData?.avatar);
 
    const {
       register,
@@ -35,7 +33,6 @@ export default function AccountForm({ userData }: AccountFormProps) {
       defaultValues: {
          firstName: '',
          lastName: '',
-         phoneCode: '+880',
          phoneNumber: '',
          title: '',
          biography: '',
@@ -48,11 +45,11 @@ export default function AccountForm({ userData }: AccountFormProps) {
          reset({
             firstName: userData.firstname || '',
             lastName: userData.lastname || '',
-            phoneCode: '+880', // Default or parse complex logic if needed
             phoneNumber: userData.phone || '',
             title: userData.headline || '',
             biography: userData.biography || '',
          });
+         setCurrentAvatar(userData.avatar);
       }
    }, [userData, reset]);
 
@@ -67,10 +64,12 @@ export default function AccountForm({ userData }: AccountFormProps) {
          };
 
          await apiClient.patch('/user/profile', payload);
-         alert('Account settings saved successfully!');
+         toast.success('Account settings saved successfully!');
       } catch (error: any) {
          console.error(error);
-         alert(error.response?.data?.message || 'Failed to update profile');
+         toast.error(
+            error.response?.data?.message || 'Failed to update profile'
+         );
       }
    };
 
@@ -109,14 +108,6 @@ export default function AccountForm({ userData }: AccountFormProps) {
                      Phone Number
                   </label>
                   <div className="flex">
-                     <select
-                        {...register('phoneCode')}
-                        className="border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm px-2 rounded-l-sm focus:outline-none"
-                     >
-                        <option value="+880">+880</option>
-                        <option value="+20">+20</option>
-                        <option value="+966">+966</option>
-                     </select>
                      <div className="w-full relative">
                         <input
                            type="text"
@@ -157,7 +148,10 @@ export default function AccountForm({ userData }: AccountFormProps) {
                <SaveButton isLoading={isSubmitting} />
             </div>
 
-            <PhotoUpload currentAvatar={userData?.avatar} />
+            <PhotoUpload
+               currentAvatar={currentAvatar}
+               // onUploadSuccess={setCurrentAvatar}
+            />
          </div>
       </form>
    );

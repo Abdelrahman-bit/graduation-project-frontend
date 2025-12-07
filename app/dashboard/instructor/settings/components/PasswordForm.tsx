@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { apiClient } from '@/lib/http';
 import { passwordSchema, PasswordFormValues } from '../schemas';
+import toast from 'react-hot-toast';
 import { PasswordInput, SaveButton, SectionTitle } from './SharedUI';
 
 export default function PasswordForm() {
@@ -25,10 +26,12 @@ export default function PasswordForm() {
             confirmPassword: data.confirmPassword,
          });
          reset();
-         alert('Password updated successfully!');
+         toast.success('Password updated successfully!');
       } catch (error: any) {
          console.error(error);
-         alert(error.response?.data?.message || 'Failed to update password');
+         toast.error(
+            error.response?.data?.message || 'Failed to update password'
+         );
       }
    };
 
