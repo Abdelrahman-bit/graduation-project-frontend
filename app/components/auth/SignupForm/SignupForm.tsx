@@ -1,8 +1,11 @@
 'use client';
 import React from 'react';
+import { signUp } from '@/app/services/authService';
 import { Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const SignupForm = () => {
+   const router = useRouter();
    const [firstName, setFirstName] = React.useState('');
    const [lastName, setLastName] = React.useState('');
    const [username, setUsername] = React.useState('');
@@ -58,35 +61,21 @@ const SignupForm = () => {
       ev.preventDefault();
       setErrors({});
       if (!validate()) return;
+
       setSubmitting(true);
       try {
-         const res = await fetch('/api/auth/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-               firstName,
-               lastName,
-               username,
-               email,
-               password,
-            }),
-            credentials: 'include',
+         await signUp({
+            firstName,
+            lastName,
+            username,
+            email,
+            password,
+            confirmPassword,
          });
-
-         if (!res.ok) {
-            const body = await res.json().catch(() => ({}));
-            setErrors({
-               submit: body?.message || `Request failed (${res.status})`,
-            });
-            setSubmitting(false);
-            return;
-         }
-
-         // success - optionally handle response (token, redirect)
-         // For now, redirect to login page
-         window.location.href = '/auth/login';
-      } catch (err) {
-         setErrors({ submit: 'Network error. Please try again.' });
+         router.push('/courses');
+      } catch (error: any) {
+         setErrors({ submit: error.message });
+      } finally {
          setSubmitting(false);
       }
    };
