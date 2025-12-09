@@ -32,11 +32,8 @@ export default function ChatBot() {
    }, [isOpen]);
 
    // Use apiClient base URL to construct the endpoint
-   // This ensures we respect the global API configuration
-   const baseURL = apiClient.defaults.baseURL || '';
-   // Remove trailing slash if present to avoid double slash
-   const cleanBaseURL = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
-   const apiEndpoint = `${cleanBaseURL}/chat`;
+   // Use Next.js rewrite to proxy /api/chat to backend
+   // See next.config.ts for rewrite configuration
 
    // Manually manage input state since useChat's handleInputChange was unreliable here
    const [localInput, setLocalInput] = useState('');
@@ -50,7 +47,7 @@ export default function ChatBot() {
       id: chatId, // Unique ID per session to avoid message persistence issues
       initialMessages: [], // Force clean state on each page load
       maxSteps: 3, // CRITICAL: Must match server's maxSteps to prevent tool execution failures
-      api: apiEndpoint,
+      api: '/api/chat', // Uses Next.js rewrite to proxy to backend
       // Use a function for headers to always get the latest token from localStorage
       headers: () => {
          const currentToken = localStorage.getItem('token');
