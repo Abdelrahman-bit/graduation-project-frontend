@@ -100,8 +100,6 @@ export default function AccountForm({
                   />
                </div>
 
-               {/* Username field removed */}
-
                {/* Phone Number Custom Layout */}
                <div className="flex flex-col gap-1.5 w-full">
                   <label className="text-sm text-gray-900 font-medium">

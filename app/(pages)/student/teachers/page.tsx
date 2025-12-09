@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 
 import InstructorCard, {
    InstructorProps,
-} from '@/components/student/InstructorCard';
+} from '@/app/components/student/InstructorCard';
 
 export default function StudentInstructorsPage() {
    // fetch data from API later

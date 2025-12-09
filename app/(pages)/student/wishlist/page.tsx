@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import WishlistCard from '@/components/student/WishlistCard';
+import WishlistCard from '@/app/components/student/WishlistCard';
 
 export default function WishlistPage() {
    const wishlistItems = [

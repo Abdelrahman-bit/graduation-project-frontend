@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Image from 'next/image';
 
 export default function StudentHeader() {
    const pathname = usePathname();
@@ -12,7 +11,6 @@ export default function StudentHeader() {
       { name: 'Teachers', href: '/student/teachers' },
       { name: 'Messages', href: '/student/studentMsgs' },
       { name: 'Wishlist', href: '/student/wishlist' },
-      { name: 'Shopping Cart', href: '/student/shoppingCart' },
       { name: 'Settings', href: '/student/settings' },
    ];
 

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
-import CourseCard, { CourseProps } from '@/components/student/CourseCard';
+import CourseCard, { CourseProps } from '@/app/components/student/CourseCard';
 
 export default function StudentCoursesPage() {
    const [searchQuery, setSearchQuery] = useState('');

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Users, PlayCircle } from 'lucide-react';
-import CourseCard from '@/components/student/CourseCard';
+import CourseCard from '@/app/components/student/CourseCard';
 
 export default function InstructorProfilePage({
    params,
