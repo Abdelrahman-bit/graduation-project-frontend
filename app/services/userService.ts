@@ -58,6 +58,31 @@ export const getUserProfile = async (): Promise<UserProfile> => {
    }
 };
 
+export interface PublicUserProfileResponse {
+   status: string;
+   data: UserProfile;
+}
+
+/**
+ * Fetch a public user profile by ID
+ * @param id - User ID
+ * @returns User profile data
+ */
+export const getPublicUserProfile = async (
+   id: string
+): Promise<UserProfile> => {
+   try {
+      const { data } = await apiClient.get<PublicUserProfileResponse>(
+         `/user/${id}`
+      );
+      return data.data;
+   } catch (error: any) {
+      throw new Error(
+         error.response?.data?.message || 'Failed to fetch public user profile'
+      );
+   }
+};
+
 /**
  * Update user profile information (name, phone, title, biography)
  * @param profileData - The profile data to update

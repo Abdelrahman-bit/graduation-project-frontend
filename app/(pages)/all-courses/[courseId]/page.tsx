@@ -232,7 +232,15 @@ export default function CourseDetailsPage({
 
                <div className="flex flex-wrap items-center gap-6 mb-8">
                   {/* Single Instructor Avatar */}
-                  <div className="flex items-center gap-3">
+                  <Link
+                     href={
+                        course.instructor &&
+                        typeof course.instructor === 'object'
+                           ? `/student/instructors/${(course.instructor as any)._id}`
+                           : '#'
+                     }
+                     className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+                  >
                      <Avatar className="w-10 h-10 border-2 border-white shadow-sm cursor-pointer">
                         <AvatarImage
                            src={getInstructorAvatar()}
@@ -249,7 +257,7 @@ export default function CourseDetailsPage({
                         <span className="text-gray-500 block text-xs">
                            Created by:
                         </span>
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-gray-900 group-hover:text-orange-600 transition-colors">
                            {typeof course.instructor === 'object' &&
                            (course.instructor as any).firstname &&
                            (course.instructor as any).lastname
@@ -257,7 +265,7 @@ export default function CourseDetailsPage({
                               : 'Instructor'}
                         </span>
                      </div>
-                  </div>
+                  </Link>
 
                   {/* Level Badge */}
                   <div className="flex items-center gap-2">
@@ -556,8 +564,16 @@ export default function CourseDetailsPage({
                      {course.instructor &&
                      typeof course.instructor === 'object' ? (
                         <div className="bg-white border border-gray-100 rounded-2xl p-8">
-                           <div className="flex items-start gap-6">
-                              <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
+                           <Link
+                              href={
+                                 course.instructor &&
+                                 typeof course.instructor === 'object'
+                                    ? `/student/instructors/${(course.instructor as any)._id}`
+                                    : '#'
+                              }
+                              className="flex items-start gap-6 group"
+                           >
+                              <Avatar className="w-24 h-24 border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                                  <AvatarImage
                                     src={getInstructorAvatar()}
                                     alt={
@@ -575,7 +591,7 @@ export default function CourseDetailsPage({
                                  </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
-                                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                                 <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">
                                     {typeof course.instructor === 'object' &&
                                        `${(course.instructor as any).firstname} ${(course.instructor as any).lastname}`}
                                  </h2>
@@ -589,7 +605,7 @@ export default function CourseDetailsPage({
                                     </div>
                                  </div>
                               </div>
-                           </div>
+                           </Link>
                         </div>
                      ) : (
                         <div className="p-8 border rounded-xl text-center text-gray-500">

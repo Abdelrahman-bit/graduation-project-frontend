@@ -25,57 +25,18 @@ export default function StudentCoursesPage() {
             const response = await fetchMyCourses();
             const studentCourses = response.studentCourses;
 
-            // Calculate initial progress overrides from localStorage
-            const newOverrides: Record<string, number> = {};
-            studentCourses.forEach((enrollment) => {
-               const courseId = enrollment.course._id;
-               const stored = localStorage.getItem(
-                  `course_${courseId}_completed`
-               );
-               if (stored) {
-                  try {
-                     const localCompleted: string[] = JSON.parse(stored);
-                     const totalLectures =
-                        enrollment.course.curriculum?.sections?.reduce(
-                           (acc: number, section: Section) =>
-                              acc + (section.lectures?.length || 0),
-                           0
-                        ) || 0;
-
-                     if (totalLectures > 0) {
-                        const percentage = Math.round(
-                           (localCompleted.length / totalLectures) * 100
-                        );
-                        newOverrides[courseId] = percentage;
-                     }
-                  } catch (e) {
-                     console.error('Error parsing local progress', e);
-                  }
-               }
-            });
-            setProgressOverrides(newOverrides);
-
             // Map to Course interface
             const mappedCourses: Course[] = studentCourses.map((enrollment) => {
-               // Determine progress: Override > API Percentage > Calculated from API
-               let progress =
-                  newOverrides[enrollment.course._id] ??
-                  enrollment.progress?.progressPercentage;
-
-               if (progress === undefined) {
-                  const totalLectures =
-                     enrollment.course.curriculum?.sections?.reduce(
-                        (acc: number, section: Section) =>
-                           acc + (section.lectures?.length || 0),
-                        0
-                     ) || 0;
-                  const completedCount =
-                     enrollment.progress?.completedLectures?.length || 0;
-                  if (totalLectures > 0) {
-                     progress = Math.round(
-                        (completedCount / totalLectures) * 100
-                     );
-                  }
+               // Use progress directly from backend
+               // If it's a number, use it. If undefined, default to 0.
+               let progress = 0;
+               if (typeof enrollment.progress === 'number') {
+                  progress = enrollment.progress;
+               } else if (
+                  (enrollment as any).progress?.progressPercentage !== undefined
+               ) {
+                  // Fallback for any legacy structure if necessary
+                  progress = (enrollment as any).progress.progressPercentage;
                }
 
                return {
@@ -85,7 +46,7 @@ export default function StudentCoursesPage() {
                   image:
                      enrollment.course.advancedInfo?.thumbnailUrl ||
                      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000',
-                  progress: progress || 0,
+                  progress: progress,
                };
             });
             setCourses(mappedCourses);

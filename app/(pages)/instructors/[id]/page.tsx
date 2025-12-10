@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // Given user context (student view), let's use the one from student components which expects specific props, or map to whatever component works best.
 // The original import was from Home_Page. Let's use `app/components/student/CourseCard` for consistency with student dashboard if possible, or keep original if it looks better.
 // Actually, let's use `app/components/student/CourseCard` to reuse the logic we just fixed.
-import CourseCard from '@/app/components/student/CourseCard';
+import { CourseCard } from '@/app/components/global/CourseCard/CourseCard';
 import { getPublicUserProfile, UserProfile } from '@/app/services/userService';
 import {
    getPublicInstructorCourses,

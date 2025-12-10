@@ -46,18 +46,24 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
 
             {/* Footer Section */}
             <div className="mt-4">
-               {course.progress !== undefined && course.progress > 0 ? (
-                  <div className="flex items-center justify-between gap-3">
-                     <span className="flex-1 text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-500 hover:bg-orange-600 text-white">
-                        Continue Learning
+               {course.progress !== undefined ? (
+                  course.progress > 0 ? (
+                     <div className="flex items-center justify-between gap-3">
+                        <span className="flex-1 text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-500 hover:bg-orange-600 text-white">
+                           Continue Learning
+                        </span>
+                        <span className="text-xs font-semibold text-green-500 whitespace-nowrap">
+                           {course.progress}% completed
+                        </span>
+                     </div>
+                  ) : (
+                     <span className="block w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-50 hover:bg-orange-100 text-orange-600">
+                        Start Learning
                      </span>
-                     <span className="text-xs font-semibold text-green-500 whitespace-nowrap">
-                        {course.progress}% completed
-                     </span>
-                  </div>
+                  )
                ) : (
-                  <span className="block w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-50 hover:bg-orange-100 text-orange-600">
-                     Start Learning
+                  <span className="block w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-gray-50 hover:bg-gray-100 text-gray-600">
+                     View Details
                   </span>
                )}
             </div>

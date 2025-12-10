@@ -1,18 +1,28 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import CourseCard, { CourseProps } from './CourseCard';
+import {
+   CourseCard,
+   Course,
+} from '@/app/components/global/CourseCard/CourseCard';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getMyCourses } from '@/app/services/studentService';
 import useBearStore from '@/app/store/useStore';
 
 const LastWatchedCourses = () => {
-   const [courses, setCourses] = useState<CourseProps[]>([]);
+   const [courses, setCourses] = useState<Course[]>([]);
    const { user } = useBearStore();
 
    useEffect(() => {
       const fetchLastWatched = async () => {
          try {
             const studentCourses = await getMyCourses();
+            console.log('LastWatchedCourses fetched:', studentCourses);
+            if (studentCourses.length > 0) {
+               console.log(
+                  'First course progress:',
+                  studentCourses[0].progress
+               );
+            }
             // Just take first 4 for now as "Last Watched" proxy
             const mapped = studentCourses.slice(0, 4).map((item) => ({
                id: item.course._id,
@@ -35,7 +45,7 @@ const LastWatchedCourses = () => {
    return (
       <section>
          {/* الهيدر: العنوان والأسهم */}
-         <div className="flex justify-between items-end mb-6">
+         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
             <div>
                <h2 className="text-xl font-bold text-gray-900">
                   Let’s start learning, {user?.name?.split(' ')[0] || 'Student'}
@@ -58,7 +68,7 @@ const LastWatchedCourses = () => {
 
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {courses.map((course) => (
-               <CourseCard key={course.id} {...course} />
+               <CourseCard key={course.id} course={course} />
             ))}
          </div>
       </section>

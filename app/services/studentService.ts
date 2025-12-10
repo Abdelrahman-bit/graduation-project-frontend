@@ -107,6 +107,16 @@ export const getWishlist = async (): Promise<WishlistItem[]> => {
    }
 };
 
+export const getInstructorProfile = async (id: string) => {
+   try {
+      const { data } = await apiClient.get<any>(`/user/${id}`);
+      return data.data;
+   } catch (error: any) {
+      console.error('Failed to fetch instructor profile', error);
+      return null;
+   }
+};
+
 export const addToWishlist = async (courseId: string) => {
    return apiClient.post('/student/wishlist', { courseId });
 };
