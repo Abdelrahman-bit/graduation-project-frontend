@@ -7,7 +7,7 @@ export interface UserProfile {
    firstname: string;
    lastname: string;
    phone?: string;
-   headline?: string;
+   title?: string;
    biography?: string;
    avatar?: string;
    role: 'student' | 'instructor' | 'admin';

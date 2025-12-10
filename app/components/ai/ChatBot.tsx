@@ -180,7 +180,7 @@ export default function ChatBot() {
                   className="fixed bottom-24 right-6 z-50 flex h-[600px] w-[400px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white/95 shadow-2xl backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/95"
                >
                   {/* Header */}
-                  <div className="flex items-center justify-between bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-4 text-white">
+                  <div className="flex items-center justify-between bg-linear-to-r from-indigo-600 to-violet-600 px-4 py-4 text-white">
                      <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
                            <Bot size={18} />
