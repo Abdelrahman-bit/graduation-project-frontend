@@ -24,7 +24,7 @@ export interface BearActions {
    decrement: () => void;
    login: (userData: User) => void;
    logout: () => void;
-   initializeAuth: () => void;
+   initializeAuth: () => Promise<void>;
 }
 
 // 3. Combine State and Actions for the final store signature

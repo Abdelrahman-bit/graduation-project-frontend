@@ -6,9 +6,12 @@ import {
    fetchCourseById,
    getCourseProgress,
    updateLectureProgress,
+   checkEnrollment,
    Lecture,
    Section,
 } from '@/app/services/courses';
+import { useRouter } from 'next/navigation'; // Import useRouter
+import RouteGuard from '@/app/components/auth/RouteGuard'; // Import RouteGuard
 import {
    ChevronDown,
    ChevronRight,
@@ -28,15 +31,38 @@ export default function WatchCoursePage({
 }) {
    const { courseId } = use(params);
    const queryClient = useQueryClient();
-   const [openSection, setOpenSection] = useState<string | null>(null);
+   const router = useRouter(); // Initialize router
+   const [openSections, setOpenSections] = useState<string[]>([]); // Changed to array
    const [currentLecture, setCurrentLecture] = useState<Lecture | null>(null);
    const [activeTab, setActiveTab] = useState<
       'description' | 'notes' | 'attachments' | 'comments'
    >('description');
    const [completedLectures, setCompletedLectures] = useState<string[]>([]);
+   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null); // State for enrollment status
 
    const [videoTime, setVideoTime] = useState<number>(0);
    const videoRef = useRef<HTMLVideoElement>(null);
+
+   // Check Enrollment on Mount
+   useEffect(() => {
+      const verifyEnrollment = async () => {
+         try {
+            const enrolled = await checkEnrollment(courseId);
+            if (!enrolled) {
+               // Redirect to public course page if not enrolled
+               router.replace(`/all-courses/${courseId}`);
+            } else {
+               setIsEnrolled(true);
+            }
+         } catch (error) {
+            console.error('Enrollment check failed:', error);
+            router.replace(`/all-courses/${courseId}`);
+         }
+      };
+      if (courseId) {
+         verifyEnrollment();
+      }
+   }, [courseId, router]);
 
    // Fetch course details
    const { data, isLoading } = useQuery({
@@ -145,7 +171,13 @@ export default function WatchCoursePage({
       if (foundLecture) {
          // eslint-disable-next-line react-hooks/set-state-in-effect
          setCurrentLecture(foundLecture);
-         setOpenSection(foundSectionId);
+         if (foundSectionId) {
+            setOpenSections((prev) =>
+               prev.includes(foundSectionId!)
+                  ? prev
+                  : [...prev, foundSectionId!]
+            );
+         }
       }
    }, [course, currentLecture, courseId]);
 
@@ -170,7 +202,11 @@ export default function WatchCoursePage({
    }, [currentLecture, courseId]);
 
    const toggleSection = (sectionId: string) => {
-      setOpenSection((prev) => (prev === sectionId ? null : sectionId));
+      setOpenSections((prev) =>
+         prev.includes(sectionId)
+            ? prev.filter((id) => id !== sectionId)
+            : [...prev, sectionId]
+      );
    };
 
    const formatDuration = (seconds: number) => {
@@ -263,7 +299,11 @@ export default function WatchCoursePage({
 
       if (nextLecture) {
          setCurrentLecture(nextLecture);
-         setOpenSection(nextSectionId); // Ensure section is open
+         if (nextSectionId) {
+            setOpenSections((prev) =>
+               prev.includes(nextSectionId!) ? prev : [...prev, nextSectionId!]
+            ); // Ensure section is open
+         }
       }
    };
 
@@ -277,11 +317,17 @@ export default function WatchCoursePage({
       }
    };
 
-   if (isLoading) {
+   if (isLoading || isEnrolled === null) {
       return (
-         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            Loading...
-         </div>
+         <>
+            <RouteGuard type="protected" role="student" />
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+               <div className="flex flex-col items-center gap-4">
+                  <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-gray-600">Verifying access...</p>
+               </div>
+            </div>
+         </>
       );
    }
 
@@ -299,12 +345,13 @@ export default function WatchCoursePage({
 
    return (
       <div className="min-h-screen bg-gray-50">
+         <RouteGuard type="protected" role="student" />
          {/* Top Header */}
          <div className="bg-white border-b border-gray-200 px-6 py-4">
             <div className="max-w-[1800px] mx-auto flex items-center justify-between">
                <div className="flex items-center gap-4">
                   <Link
-                     href="/my-courses"
+                     href="/student/courses"
                      className="text-gray-600 hover:text-gray-900"
                   >
                      <ArrowLeft className="w-5 h-5" />
@@ -381,26 +428,13 @@ export default function WatchCoursePage({
                      {currentLecture?.title || 'Select a lecture'}
                   </h2>
                   <div className="flex items-center gap-4 mb-4">
-                     <div className="flex items-center -space-x-2">
-                        {[1, 2, 3, 4].map((i) => (
-                           <div
-                              key={i}
-                              className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white"
-                           ></div>
-                        ))}
-                     </div>
                      <span className="text-sm text-gray-600">
-                        512 students watching
-                     </span>
-                     <span className="text-sm text-gray-600">
-                        Last updated: Oct 20, 2020
-                     </span>
-                     <span className="text-sm text-gray-600 flex items-center gap-1">
-                        <MessageSquare className="w-4 h-4" />
-                        Comments: 154
+                        Last updated:{' '}
+                        {course.updatedAt
+                           ? new Date(course.updatedAt).toLocaleDateString()
+                           : 'N/A'}
                      </span>
                   </div>
-
                   {/* Tabs */}
                   <div className="border-b border-gray-200 mb-6">
                      <div className="flex gap-8">
@@ -521,7 +555,7 @@ export default function WatchCoursePage({
 
                   <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
                      {course.curriculum?.sections?.map((section: Section) => {
-                        const isOpen = openSection === section.clientId;
+                        const isOpen = openSections.includes(section.clientId);
                         const sectionDuration =
                            section.lectures?.reduce(
                               (acc: number, lecture) =>

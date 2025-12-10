@@ -1,6 +1,13 @@
-import { Course } from '@/app/(pages)/my-courses/page';
 import Image from 'next/image';
 import Link from 'next/link';
+
+export interface Course {
+   id: string;
+   image: string;
+   category: string;
+   title: string;
+   progress?: number;
+}
 
 interface CourseCardProps {
    course: Course;
@@ -9,7 +16,7 @@ interface CourseCardProps {
 export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
    return (
       <Link
-         href={`/my-courses/${course.id}`}
+         href={`/student/courses/${course.id}`}
          className={`relative group flex flex-col bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 h-full`}
       >
          {/* Image Section */}

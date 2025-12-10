@@ -1,4 +1,4 @@
-import StudentHeader from '../../components/student/StudentHeader';
+import StudentHeader from '@/app/components/student/StudentHeader';
 import RouteGuard from '@/app/components/auth/RouteGuard';
 
 export default function StudentLayout({

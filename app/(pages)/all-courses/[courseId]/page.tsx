@@ -142,6 +142,10 @@ export default function CourseDetailsPage({
    }
 
    const course = data?.data;
+   if (course) {
+      console.log('Course Data:', course);
+      console.log('Instructor Data:', course.instructor);
+   }
    if (!course) return null;
 
    // Open first section by default
@@ -167,6 +171,17 @@ export default function CourseDetailsPage({
 
    const formatDuration = (value: number, unit: string) => {
       return `${value} ${unit}${value > 1 ? 's' : ''}`;
+   };
+
+   // Helper to safely get avatar URL
+   const getInstructorAvatar = () => {
+      if (typeof course.instructor !== 'object' || !course.instructor) {
+         return 'https://github.com/shadcn.png';
+      }
+      const inst = course.instructor as any;
+      return (
+         inst.avatar || inst.profilePicture || 'https://github.com/shadcn.png'
+      );
    };
 
    return (
@@ -220,13 +235,13 @@ export default function CourseDetailsPage({
                   <div className="flex items-center gap-3">
                      <Avatar className="w-10 h-10 border-2 border-white shadow-sm cursor-pointer">
                         <AvatarImage
-                           src="https://github.com/shadcn.png"
+                           src={getInstructorAvatar()}
                            alt="Instructor"
                         />
                         <AvatarFallback className="bg-orange-100 text-orange-600">
                            {typeof course.instructor === 'object' &&
-                           course.instructor.name
-                              ? course.instructor.name.charAt(0)
+                           (course.instructor as any).firstname
+                              ? (course.instructor as any).firstname.charAt(0)
                               : 'I'}
                         </AvatarFallback>
                      </Avatar>
@@ -236,8 +251,9 @@ export default function CourseDetailsPage({
                         </span>
                         <span className="font-medium text-gray-900">
                            {typeof course.instructor === 'object' &&
-                           course.instructor.name
-                              ? course.instructor.name
+                           (course.instructor as any).firstname &&
+                           (course.instructor as any).lastname
+                              ? `${(course.instructor as any).firstname} ${(course.instructor as any).lastname}`
                               : 'Instructor'}
                         </span>
                      </div>
@@ -543,16 +559,25 @@ export default function CourseDetailsPage({
                            <div className="flex items-start gap-6">
                               <Avatar className="w-24 h-24 border-4 border-white shadow-lg">
                                  <AvatarImage
-                                    src="https://github.com/shadcn.png"
-                                    alt={course.instructor.name}
+                                    src={getInstructorAvatar()}
+                                    alt={
+                                       (course.instructor as any).firstname ||
+                                       'Instructor'
+                                    }
                                  />
                                  <AvatarFallback className="bg-orange-100 text-orange-600 text-2xl">
-                                    {course.instructor.name?.charAt(0) || 'I'}
+                                    {typeof course.instructor === 'object' &&
+                                    (course.instructor as any).firstname
+                                       ? (
+                                            course.instructor as any
+                                         ).firstname.charAt(0)
+                                       : 'I'}
                                  </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
                                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                                    {course.instructor.name}
+                                    {typeof course.instructor === 'object' &&
+                                       `${(course.instructor as any).firstname} ${(course.instructor as any).lastname}`}
                                  </h2>
                                  <p className="text-gray-600 mb-4">
                                     {course.instructor.email}
@@ -667,7 +692,7 @@ export default function CourseDetailsPage({
                   {isEnrolled && (
                      <div className="mb-8">
                         <Link
-                           href={`/my-courses/${courseId}`}
+                           href={`/student/courses/${courseId}`}
                            className="w-full py-4 px-6 bg-green-500 hover:bg-green-600 text-white font-bold text-lg rounded-lg transition-colors shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
                         >
                            <Play className="w-5 h-5" />

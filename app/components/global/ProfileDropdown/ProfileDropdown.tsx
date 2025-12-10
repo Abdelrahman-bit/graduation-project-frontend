@@ -118,7 +118,10 @@ export default function ProfileDropdown() {
                <div className="px-4 py-3 border-b border-gray-200">
                   <p className="text-sm font-semibold text-gray-900">
                      {user.name ||
-                        `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() ||
+                        (userData &&
+                           `${userData.firstname || ''} ${userData.lastname || ''}`.trim()) ||
+                        ((user as any).firstname &&
+                           `${(user as any).firstname} ${(user as any).lastname}`) ||
                         'User'}
                   </p>
                   <p className="text-xs text-gray-500">{user.email}</p>

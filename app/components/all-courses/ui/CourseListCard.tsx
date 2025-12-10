@@ -46,9 +46,6 @@ const CourseListCard = ({ course }: { course: Course }) => {
                >
                   {course.basicInfo.category}
                </span>
-               <span className="font-bold text-lg text-orange-500">
-                  ${course.price.amount}
-               </span>
             </div>
 
             <h3 className="font-bold text-gray-800 text-base leading-snug mb-2 line-clamp-2 group-hover:text-orange-500 transition-colors">

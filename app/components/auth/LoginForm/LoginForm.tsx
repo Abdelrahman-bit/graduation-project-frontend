@@ -37,8 +37,15 @@ export default function LoginForm() {
       if (!validate()) return;
       setSubmitting(true);
       try {
-         const { token } = await login({ email, password, remember });
+         const response = await login({ email, password, remember });
+         const { token } = response;
+         // Check for user in response.user or response.data.user
+         const user = response.user || response.data?.user;
+
          localStorage.setItem('token', token);
+         if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+         }
          // Decode the token to get user information, including the role
          const decodedToken: { role: string } = jwtDecode(token);
          const userRole = decodedToken.role;
@@ -47,7 +54,7 @@ export default function LoginForm() {
          initializeAuth();
 
          if (userRole === 'student') {
-            router.push('/my-courses');
+            router.push('/student/courses');
          } else if (userRole === 'instructor') {
             router.push('/dashboard/instructor');
          } else if (userRole === 'admin') {

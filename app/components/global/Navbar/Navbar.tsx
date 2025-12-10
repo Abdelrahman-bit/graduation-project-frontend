@@ -14,6 +14,8 @@ export default function Navbar() {
    const [isHydrated, setIsHydrated] = useState(false);
    const { user, isAuthenticated, loading, initializeAuth } = useBearStore();
 
+   // console.log('Navbar State:', { isAuthenticated, loading, user: !!user, isHydrated });
+
    // Handle hydration mismatch
    useEffect(() => {
       const timer = setTimeout(() => {

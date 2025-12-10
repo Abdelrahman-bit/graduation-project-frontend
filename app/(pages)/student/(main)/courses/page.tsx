@@ -1,42 +1,103 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import CourseCard, { CourseProps } from '@/app/components/student/CourseCard';
-import { getMyCourses } from '@/app/services/studentService';
+import {
+   CourseCard,
+   Course,
+} from '@/app/components/global/CourseCard/CourseCard';
+import { fetchMyCourses, Section } from '@/app/services/courses';
 
 export default function StudentCoursesPage() {
    const [searchQuery, setSearchQuery] = useState('');
    const [sortBy, setSortBy] = useState('Latest');
    const [statusFilter, setStatusFilter] = useState('All Courses');
-   const [courses, setCourses] = useState<CourseProps[]>([]);
+   const [courses, setCourses] = useState<Course[]>([]);
    const [isLoading, setIsLoading] = useState(true);
+   const [progressOverrides, setProgressOverrides] = useState<
+      Record<string, number>
+   >({});
 
+   // Fetch courses
    useEffect(() => {
-      fetchCourses();
+      const loadCourses = async () => {
+         try {
+            setIsLoading(true);
+            const response = await fetchMyCourses();
+            const studentCourses = response.studentCourses;
+
+            // Calculate initial progress overrides from localStorage
+            const newOverrides: Record<string, number> = {};
+            studentCourses.forEach((enrollment) => {
+               const courseId = enrollment.course._id;
+               const stored = localStorage.getItem(
+                  `course_${courseId}_completed`
+               );
+               if (stored) {
+                  try {
+                     const localCompleted: string[] = JSON.parse(stored);
+                     const totalLectures =
+                        enrollment.course.curriculum?.sections?.reduce(
+                           (acc: number, section: Section) =>
+                              acc + (section.lectures?.length || 0),
+                           0
+                        ) || 0;
+
+                     if (totalLectures > 0) {
+                        const percentage = Math.round(
+                           (localCompleted.length / totalLectures) * 100
+                        );
+                        newOverrides[courseId] = percentage;
+                     }
+                  } catch (e) {
+                     console.error('Error parsing local progress', e);
+                  }
+               }
+            });
+            setProgressOverrides(newOverrides);
+
+            // Map to Course interface
+            const mappedCourses: Course[] = studentCourses.map((enrollment) => {
+               // Determine progress: Override > API Percentage > Calculated from API
+               let progress =
+                  newOverrides[enrollment.course._id] ??
+                  enrollment.progress?.progressPercentage;
+
+               if (progress === undefined) {
+                  const totalLectures =
+                     enrollment.course.curriculum?.sections?.reduce(
+                        (acc: number, section: Section) =>
+                           acc + (section.lectures?.length || 0),
+                        0
+                     ) || 0;
+                  const completedCount =
+                     enrollment.progress?.completedLectures?.length || 0;
+                  if (totalLectures > 0) {
+                     progress = Math.round(
+                        (completedCount / totalLectures) * 100
+                     );
+                  }
+               }
+
+               return {
+                  id: enrollment.course._id,
+                  title: enrollment.course.basicInfo.title,
+                  category: enrollment.course.basicInfo.category,
+                  image:
+                     enrollment.course.advancedInfo?.thumbnailUrl ||
+                     'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1000',
+                  progress: progress || 0,
+               };
+            });
+            setCourses(mappedCourses);
+         } catch (error) {
+            console.error('Failed to fetch courses:', error);
+         } finally {
+            setIsLoading(false);
+         }
+      };
+
+      loadCourses();
    }, []);
-
-   const fetchCourses = async () => {
-      try {
-         setIsLoading(true);
-         const studentCourses = await getMyCourses();
-
-         const mappedCourses: CourseProps[] = studentCourses.map((item) => ({
-            id: item.course._id,
-            title: item.course.basicInfo.title,
-            category: item.course.basicInfo.category,
-            image:
-               item.course.advancedInfo?.thumbnailUrl ||
-               'https://via.placeholder.com/750x422',
-            progress: item.progress || 0, // Backend needs to calculate this
-            // We can also pass instructor info if we update CourseCard, but for now matching interface
-         }));
-         setCourses(mappedCourses);
-      } catch (error) {
-         console.error('Failed to fetch courses:', error);
-      } finally {
-         setIsLoading(false);
-      }
-   };
 
    // filter and sort courses based on user input
    const filteredCourses = courses
@@ -46,28 +107,24 @@ export default function StudentCoursesPage() {
             .toLowerCase()
             .includes(searchQuery.toLowerCase());
 
-         // ststus filter  (Completed / Active)
+         // status filter
          let matchesStatus = true;
          if (statusFilter === 'Completed') {
-            matchesStatus = course.progress === 100;
+            matchesStatus = (course.progress || 0) === 100;
          } else if (statusFilter === 'Active') {
-            matchesStatus = course.progress < 100;
+            matchesStatus = (course.progress || 0) < 100;
          }
 
          return matchesSearch && matchesStatus;
       })
       .sort((a, b) => {
-         //   (Sort)
          if (sortBy === 'Title') {
             return a.title.localeCompare(b.title);
          } else if (sortBy === 'Oldest') {
-            // Assuming ID isn't sortable this way if string, but for now keeping logic or maybe better to sort by index if we had date
+            // Basic fallback since we don't have date in the summarized Course interface yet
             return 0;
          } else {
-            // Latest (default) - If we had date, we'd sort by date.
-            // Since we don't have date in CourseProps map, we might need to improve this.
-            // But let's leave it simple for now or use original order (latest first usually from DB)
-            return 0;
+            return 0; // Latest default
          }
       });
 
@@ -81,6 +138,7 @@ export default function StudentCoursesPage() {
 
    return (
       <div className="space-y-8">
+         {/* Header & Stats */}
          <div className="flex flex-col gap-6">
             <h1 className="text-2xl font-bold text-gray-900">
                Courses{' '}
@@ -96,7 +154,6 @@ export default function StudentCoursesPage() {
                      type="text"
                      placeholder="Search in your courses..."
                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:border-[#FF6636]"
-                     // input handlers by ststes
                      value={searchQuery}
                      onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -131,11 +188,12 @@ export default function StudentCoursesPage() {
             </div>
          </div>
 
+         {/* Course Grid */}
          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredCourses.length > 0 ? (
                filteredCourses.map((course) => (
                   <div key={course.id} className="h-full">
-                     <CourseCard {...course} />
+                     <CourseCard course={course} />
                   </div>
                ))
             ) : (

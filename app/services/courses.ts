@@ -49,8 +49,10 @@ export interface Section {
 
 export interface Instructor {
    _id: string;
-   name: string;
+   firstname: string;
+   lastname: string;
    email: string;
+   avatar: string;
    id: string;
 }
 
