@@ -9,11 +9,19 @@ import {
    MessageSquare,
    Wallet,
    Users,
+   GraduationCap,
+   Building,
+   CalendarCheck,
+   LogOut,
 } from 'lucide-react';
 
 export const getSidebarItems = (
    role: 'instructor' | 'student' | 'admin',
-   counts?: { joinRequests?: number; courseRequests?: number }
+   counts?: {
+      joinRequests?: number;
+      courseRequests?: number;
+      bookingRequests?: number;
+   }
 ) => {
    const commonItems = [
       { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -61,6 +69,11 @@ export const getSidebarItems = (
       case 'admin':
          items = [
             {
+               label: 'Dashboard',
+               icon: LayoutDashboard,
+               href: '/dashboard/admin',
+            },
+            {
                label: 'Join Requests',
                icon: UserPlus,
                href: '/dashboard/admin/join-requests',
@@ -77,7 +90,32 @@ export const getSidebarItems = (
                icon: Users,
                href: '/dashboard/admin/instructors',
             },
-            ,
+            {
+               label: 'Students',
+               icon: GraduationCap,
+               href: '/dashboard/admin/students',
+            },
+            {
+               label: 'All Courses',
+               icon: BookOpen,
+               href: '/dashboard/admin/courses',
+            },
+            {
+               label: 'Manage Halls',
+               icon: Building,
+               href: '/dashboard/admin/halls',
+            },
+            {
+               label: 'Booking Requests',
+               icon: CalendarCheck,
+               href: '/dashboard/admin/bookings',
+               badge: counts?.bookingRequests,
+            },
+            {
+               label: 'Settings',
+               icon: Settings,
+               href: '/dashboard/admin/settings',
+            },
          ];
          break;
 
