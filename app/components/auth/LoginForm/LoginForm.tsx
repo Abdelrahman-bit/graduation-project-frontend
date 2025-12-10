@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import useBearStore from '@/app/store/useStore';
 import { login } from '@/app/services/authService';
-import { jwtDecode } from 'jwt-decode';
 
 export default function LoginForm() {
    const router = useRouter();
@@ -48,7 +47,7 @@ export default function LoginForm() {
          initializeAuth();
 
          if (userRole === 'student') {
-            router.push('/courses');
+            router.push('/my-courses');
          } else if (userRole === 'instructor') {
             router.push('/dashboard/instructor');
          } else if (userRole === 'admin') {
