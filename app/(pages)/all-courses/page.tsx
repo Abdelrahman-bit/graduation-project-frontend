@@ -589,13 +589,7 @@ const App = () => {
                   <>
                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {paginatedCourses.map((course) => (
-                           <Link
-                              key={course._id}
-                              href={`/all-courses/${course._id}`}
-                              className="block h-full hover:opacity-95 transition-opacity"
-                           >
-                              <CourseListCard course={course} />
-                           </Link>
+                           <CourseListCard key={course._id} course={course} />
                         ))}
                      </div>
                      {courses.length === 0 && (

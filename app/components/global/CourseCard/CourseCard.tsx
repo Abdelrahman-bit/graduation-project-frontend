@@ -1,5 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
+import useBearStore from '@/app/store/useStore';
+import { MouseEvent } from 'react';
 
 export interface Course {
    id: string;
@@ -11,9 +14,42 @@ export interface Course {
 
 interface CourseCardProps {
    course: Course;
+   hideWishlist?: boolean;
 }
 
-export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
+export const CourseCard: React.FC<CourseCardProps> = ({
+   course,
+   hideWishlist = false,
+}) => {
+   const {
+      addToWishlist,
+      removeFromWishlist,
+      isCourseInWishlist,
+      isCourseEnrolled,
+      isAuthenticated,
+   } = useBearStore();
+   const isWishlisted = isCourseInWishlist(course.id);
+   const isEnrolled = isCourseEnrolled(course.id);
+
+   // Effectively hide wishlist if explicitly asked OR if user is enrolled
+   const shouldHideWishlist = hideWishlist || isEnrolled;
+
+   const handleWishlistToggle = (e: MouseEvent) => {
+      e.preventDefault(); // Prevent link navigation
+      e.stopPropagation();
+
+      if (!isAuthenticated) {
+         // Optionally toast "Please login"
+         return;
+      }
+
+      if (isWishlisted) {
+         removeFromWishlist(course.id);
+      } else {
+         addToWishlist(course.id);
+      }
+   };
+
    return (
       <Link
          href={`/student/courses/${course.id}`}
@@ -29,6 +65,20 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
                fill
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+
+            {/* Wishlist Button */}
+            {!shouldHideWishlist && (
+               <button
+                  onClick={handleWishlistToggle}
+                  className="absolute top-2 right-2 p-2 bg-white/90 rounded-full hover:bg-white transition-colors z-10"
+               >
+                  {isWishlisted ? (
+                     <IoMdHeart className="w-5 h-5 text-red-500" />
+                  ) : (
+                     <IoMdHeartEmpty className="w-5 h-5 text-gray-500" />
+                  )}
+               </button>
+            )}
          </div>
 
          {/* Content Section */}

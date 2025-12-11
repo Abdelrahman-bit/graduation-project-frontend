@@ -142,10 +142,6 @@ export default function StudentCoursesPage() {
                   <option value="Completed">Status: Completed</option>
                   <option value="Active">Status: Active</option>
                </select>
-
-               <select className="px-4 py-3 border border-gray-200 rounded-md bg-white text-gray-600 focus:outline-none cursor-pointer">
-                  <option>Teacher: All Teachers</option>
-               </select>
             </div>
          </div>
 
@@ -154,7 +150,7 @@ export default function StudentCoursesPage() {
             {filteredCourses.length > 0 ? (
                filteredCourses.map((course) => (
                   <div key={course.id} className="h-full">
-                     <CourseCard course={course} />
+                     <CourseCard course={course} hideWishlist={true} />
                   </div>
                ))
             ) : (
