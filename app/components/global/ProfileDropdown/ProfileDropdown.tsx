@@ -39,12 +39,12 @@ export default function ProfileDropdown() {
       <div className="relative" ref={dropdownRef}>
          <button
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-2 focus:outline-none"
+            className="flex items-center gap-2 focus:outline-none cursor-pointer"
          >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 hover:border-orange-500 transition-colors">
                <Image
                   src={user.avatar || '/avatar.png'}
-                  alt={`${user.name} profile picture`}
+                  alt={`${user.name || 'User'} profile picture`}
                   width={40}
                   height={40}
                   className="object-cover"
@@ -56,7 +56,9 @@ export default function ProfileDropdown() {
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                <div className="px-4 py-3 border-b border-gray-200">
                   <p className="text-sm font-semibold text-gray-900">
-                     {user.name}
+                     {user.name ||
+                        `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() ||
+                        'User'}
                   </p>
                   <p className="text-xs text-gray-500">{user.email}</p>
                   <p className="text-xs text-orange-500 mt-1 capitalize">
@@ -75,7 +77,7 @@ export default function ProfileDropdown() {
                   </Link>
 
                   <Link
-                     href="/courses"
+                     href="/my-courses"
                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                      onClick={() => setIsOpen(false)}
                   >

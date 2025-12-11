@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import useBearStore from '@/app/store/useStore';
 import { login } from '@/app/services/authService';
+import { jwtDecode } from 'jwt-decode';
 
 export default function LoginForm() {
    const router = useRouter();
@@ -38,16 +39,39 @@ export default function LoginForm() {
       try {
          const { token, user } = await login({ email, password, remember });
          localStorage.setItem('token', token);
-         localStorage.setItem('user', JSON.stringify(user));
+
+         let currentUser = user;
+
+         if (currentUser) {
+            localStorage.setItem('user', JSON.stringify(currentUser));
+         } else {
+            try {
+               const decoded = jwtDecode<{
+                  email?: string;
+                  role?: 'student' | 'instructor' | 'admin';
+                  id?: number;
+                  sub?: string;
+               }>(token);
+               currentUser = {
+                  email: decoded.email || email,
+                  role: decoded.role as 'student' | 'instructor' | 'admin',
+                  id: decoded.id || Number(decoded.sub) || 0,
+                  // Minimal user object to satisfy store/auth requirements
+               };
+               localStorage.setItem('user', JSON.stringify(currentUser));
+            } catch (error) {
+               console.error('Failed to decode token manually:', error);
+            }
+         }
 
          // Initialize auth state in Zustand store before navigation
          initializeAuth();
 
-         if (user.role === 'student') {
-            router.push('/courses');
-         } else if (user.role === 'instructor') {
+         if (currentUser?.role === 'student') {
+            router.push('/');
+         } else if (currentUser?.role === 'instructor') {
             router.push('/dashboard/instructor');
-         } else if (user.role === 'admin') {
+         } else if (currentUser?.role === 'admin') {
             router.push('/dashboard/admin');
          }
       } catch (err: any) {
