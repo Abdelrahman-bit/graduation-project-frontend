@@ -10,6 +10,9 @@ import {
    LayoutDashboard,
    LogOut,
    LucideIcon,
+   Settings,
+   GraduationCap,
+   Heart,
 } from 'lucide-react';
 import { getUserProfile } from '@/app/services/userService';
 
@@ -83,12 +86,19 @@ export default function ProfileDropdown() {
 
       // Student menu items
       return [
-         { href: '/student/courses', icon: BookOpen, label: 'My Courses' },
          {
             href: '/student/dashboard',
             icon: LayoutDashboard,
             label: 'Dashboard',
          },
+         { href: '/student/courses', icon: BookOpen, label: 'My Courses' },
+         {
+            href: '/student/teachers',
+            icon: GraduationCap,
+            label: 'My Teachers',
+         },
+         { href: '/student/wishlist', icon: Heart, label: 'Wishlist' },
+         { href: '/student/settings', icon: Settings, label: 'Settings' },
       ];
    };
 
