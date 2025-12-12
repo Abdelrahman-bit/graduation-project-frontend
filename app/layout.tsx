@@ -4,14 +4,16 @@ import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
 import { QueryProvider } from './providers/QueryProvider';
+import ChatBot from '@/app/components/ai/ChatBot';
 
 const inter = Inter({
    subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-   title: 'E-learning Platform',
-   description: 'E-learning platform for students and teachers',
+   title: 'Eduraa - E-learning Platform',
+   description:
+      'Eduraa is a leading e-learning platform connecting students and teachers worldwide.',
 };
 
 export default function RootLayout({
@@ -27,6 +29,7 @@ export default function RootLayout({
             <QueryProvider>
                <Toaster />
                <main className="grow">{children}</main>
+               <ChatBot />
             </QueryProvider>
          </body>
       </html>

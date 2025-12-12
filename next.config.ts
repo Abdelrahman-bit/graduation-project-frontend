@@ -21,9 +21,29 @@ const nextConfig: NextConfig = {
          },
          {
             protocol: 'https',
+            hostname: 'avatars.githubusercontent.com',
+         },
+         {
+            protocol: 'https',
+            hostname: 'ui-avatars.com',
+         },
+         {
+            protocol: 'https',
             hostname: 'github.com',
          },
+         {
+            protocol: 'https',
+            hostname: 'cdn.jsdelivr.net',
+         },
       ],
+   },
+   async rewrites() {
+      return [
+         {
+            source: '/api/chat',
+            destination: 'http://localhost:5000/api/chat',
+         },
+      ];
    },
 };
 
