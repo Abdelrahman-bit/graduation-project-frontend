@@ -12,9 +12,11 @@
  * - Messages are now sent via REST API first (for persistence),
  *   then broadcast via Ably (for real-time delivery)
  * - Wrapped with AblyProvider for Ably context
+ * - Supports ?group= query param for deep linking from notifications
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatWindow } from './ChatWindow';
 import {
@@ -145,6 +147,10 @@ const ChatContainerInner: React.FC<ChatContainerProps> = ({ userRole }) => {
       return () => window.removeEventListener('resize', checkMobile);
    }, []);
 
+   // Get group ID from URL query parameter (for deep linking from notifications)
+   const searchParams = useSearchParams();
+   const groupIdFromUrl = searchParams.get('group');
+
    // Fetch chat groups on mount
    useEffect(() => {
       const fetchGroups = async () => {
@@ -152,6 +158,16 @@ const ChatContainerInner: React.FC<ChatContainerProps> = ({ userRole }) => {
             setIsLoadingGroups(true);
             const data = await getChatGroups();
             setGroups(data);
+
+            // Auto-select group from URL parameter if present
+            if (groupIdFromUrl && !selectedGroup) {
+               const matchingGroup = data.find(
+                  (g: ChatGroup) => g._id === groupIdFromUrl
+               );
+               if (matchingGroup) {
+                  setSelectedGroup(matchingGroup);
+               }
+            }
          } catch (error: any) {
             toast.error(error.message || 'Failed to load chat groups');
          } finally {
@@ -160,7 +176,7 @@ const ChatContainerInner: React.FC<ChatContainerProps> = ({ userRole }) => {
       };
 
       fetchGroups();
-   }, []);
+   }, [groupIdFromUrl]);
 
    // Fetch messages when group changes
    useEffect(() => {
@@ -188,6 +204,16 @@ const ChatContainerInner: React.FC<ChatContainerProps> = ({ userRole }) => {
    const handleSelectGroup = useCallback(
       (group: ChatGroup) => {
          setSelectedGroup(group);
+
+         // Reset unread count in the groups list when selecting
+         if (group.unreadCount && group.unreadCount > 0) {
+            setGroups((prev) =>
+               prev.map((g) =>
+                  g._id === group._id ? { ...g, unreadCount: 0 } : g
+               )
+            );
+         }
+
          if (isMobileView) {
             setShowSidebar(false);
          }
