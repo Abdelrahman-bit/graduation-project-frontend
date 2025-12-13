@@ -4,8 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import {
-   getDashboardOverview, // Mocked
-   getJoinRequests, // Real API
+   getDashboardOverview,
+   getJoinRequests,
 } from '@/app/services/adminService';
 import {
    Users,
@@ -28,7 +28,7 @@ import {
 } from 'recharts';
 
 export default function AdminDashboard() {
-   // 1. Fetch Overview Data (Mocked)
+   // 1. Fetch Overview Data
    const { data: overviewData, isLoading: isOverviewLoading } = useQuery({
       queryKey: ['adminDashboardOverview'],
       queryFn: getDashboardOverview,
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
             </div>
          </div>
 
-         {/* Stats Grid - Using Mock Data + Real Request Count if available */}
+         {/* Stats Grid */}
          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <AdminStatCard
                title="Pending Requests"
@@ -153,7 +153,7 @@ export default function AdminDashboard() {
 
          {/* Charts & Sidebar Grid */}
          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            {/* Growth Chart (Mock Data) */}
+            {/* Growth Chart */}
             <div className="xl:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                <div className="flex justify-between items-center mb-6">
                   <h2 className="text-lg font-bold text-gray-900">
@@ -266,7 +266,7 @@ export default function AdminDashboard() {
                         New Instructors
                      </h2>
                      <Link
-                        href="/dashboard/admin/join-requests"
+                        href="/dashboard/admin/instructors"
                         className="text-orange-500 text-xs font-bold uppercase tracking-wider hover:underline"
                      >
                         View All
@@ -309,7 +309,7 @@ export default function AdminDashboard() {
                   </div>
                </div>
 
-               {/* Recent Bookings Widget (Mock Data) */}
+               {/* Recent Bookings Widget */}
                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                   <div className="flex justify-between items-center mb-4">
                      <h2 className="text-lg font-bold text-gray-900">
@@ -356,7 +356,7 @@ export default function AdminDashboard() {
             </div>
          </div>
 
-         {/* Recent Platform Activity Table (Mock Data) */}
+         {/* Recent Platform Activity Table */}
          <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                <h2 className="text-lg font-bold text-gray-900">

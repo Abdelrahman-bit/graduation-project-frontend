@@ -69,21 +69,26 @@ export const getSidebarItems = (
                href: '/dashboard/admin',
             },
             {
-               label: 'Join Requests',
-               icon: UserPlus,
-               href: '/dashboard/admin/join-requests',
-               badge: counts?.joinRequests,
-            },
-            {
-               label: 'Course Requests',
-               icon: PackagePlus,
-               href: '/dashboard/admin/course-requests',
-               badge: counts?.courseRequests,
-            },
-            {
                label: 'Instructors',
                icon: Users,
                href: '/dashboard/admin/instructors',
+               badge: counts?.joinRequests,
+            },
+            {
+               label: 'All Courses',
+               icon: BookOpen,
+               href: '/dashboard/admin/courses',
+               badge: counts?.courseRequests,
+            },
+            {
+               label: 'Students',
+               icon: GraduationCap,
+               href: '/dashboard/admin/students',
+            },
+            {
+               label: 'Halls',
+               icon: Building,
+               href: '/dashboard/admin/halls',
             },
          ];
          break;

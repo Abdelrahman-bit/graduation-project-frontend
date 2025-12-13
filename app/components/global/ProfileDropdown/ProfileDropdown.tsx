@@ -72,15 +72,38 @@ export default function ProfileDropdown() {
       const basePath =
          user.role === 'admin' ? '/dashboard/admin' : '/dashboard/instructor';
 
-      if (isPrivileged) {
+      if (user.role === 'admin') {
          return [
-            { href: `${basePath}/settings`, icon: User, label: 'Settings' },
             {
-               href: `${basePath}/courses`,
+               href: '/dashboard/admin',
+               icon: LayoutDashboard,
+               label: 'Dashboard',
+            },
+            {
+               href: '/dashboard/admin/settings',
+               icon: Settings,
+               label: 'Settings',
+            },
+         ];
+      }
+
+      if (user.role === 'instructor') {
+         return [
+            {
+               href: '/dashboard/instructor/settings',
+               icon: User,
+               label: 'Settings',
+            },
+            {
+               href: '/dashboard/instructor/courses',
                icon: BookOpen,
                label: 'My Courses',
             },
-            { href: basePath, icon: LayoutDashboard, label: 'Dashboard' },
+            {
+               href: '/dashboard/instructor',
+               icon: LayoutDashboard,
+               label: 'Dashboard',
+            },
          ];
       }
 

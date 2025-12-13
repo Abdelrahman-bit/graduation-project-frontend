@@ -3,44 +3,19 @@ import { CourseDTO } from '@/app/services/courseService';
 
 export interface JoinRequest {
    _id: string;
-   name: string;
+   firstname: string;
+   lastname: string;
    email: string;
    phone: string;
    status: 'pending' | 'approved' | 'rejected';
 }
 
 export const getJoinRequests = async () => {
-   // const { data } = await apiClient.get<{
-   //    status: string;
-   //    applications: JoinRequest[];
-   // }>('/admin/dashboard/applicationRequest');
-   // return data.applications;
-
-   // MOCK DATA (For Testing)
-   await new Promise((resolve) => setTimeout(resolve, 1000));
-   return [
-      {
-         _id: '1',
-         name: 'Ahmed Ali',
-         email: 'ahmed@example.com',
-         phone: '01012345678',
-         status: 'pending',
-      },
-      {
-         _id: '2',
-         name: 'Sarah Mohamed',
-         email: 'sarah@example.com',
-         phone: '01123456789',
-         status: 'pending',
-      },
-      {
-         _id: '3',
-         name: 'John Doe',
-         email: 'john@example.com',
-         phone: '01298765432',
-         status: 'pending',
-      },
-   ] as JoinRequest[];
+   const { data } = await apiClient.get<{
+      status: string;
+      applications: JoinRequest[];
+   }>('/admin/dashboard/applicationRequest');
+   return data.applications;
 };
 
 export const updateJoinRequestStatus = async (
@@ -75,131 +50,39 @@ export const updateCourseStatus = async (
 
 export interface Instructor {
    _id: string;
-   name: string;
+   firstname: string;
+   lastname: string;
    email: string;
+   phone?: string;
+   avatar?: string;
    courses: CourseDTO[];
+   createdAt: string;
 }
 
-export const searchInstructors = async (name: string) => {
-   // const { data } = await apiClient.get<{
-   //    status: string;
-   //    data: Instructor[];
-   // }>('/admin/instructors', {
-   //    params: { name },
-   // });
-   // return data.data;
+// Real Search Instructors
+export const searchInstructors = async (name?: string) => {
+   const { data } = await apiClient.get<{
+      status: string;
+      data: Instructor[];
+   }>('/admin/instructors', {
+      params: { firstname: name },
+   });
+   return data.data;
+};
 
-   // MOCK DATA (For Testing)
-   await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate network delay
+export const getInstructorById = async (id: string) => {
+   const { data } = await apiClient.get<{
+      status: string;
+      data: Instructor;
+   }>(`/admin/instructors/${id}`);
+   return data.data;
+};
 
-   const mockInstructors: Instructor[] = [
-      {
-         _id: 'inst_1',
-         name: 'Cameron Williamson',
-         email: 'cameron.w@example.com',
-         courses: [
-            {
-               _id: 'c_1',
-               basicInfo: {
-                  title: 'Advanced React Patterns',
-                  price: 49.99,
-                  category: 'Development',
-               },
-               price: { amount: 49.99 }, // Ensure structure matches your DTO
-               status: 'published',
-            },
-            {
-               _id: 'c_2',
-               basicInfo: {
-                  title: 'Next.js 14 Full Course',
-                  price: 39.99,
-                  category: 'Development',
-               },
-               price: { amount: 39.99 },
-               status: 'draft',
-            },
-         ] as any, // Casting to avoid deep type matching issues with partial mock data
-      },
-      {
-         _id: 'inst_2',
-         name: 'Jane Cooper',
-         email: 'jane.cooper@example.com',
-         courses: [
-            {
-               _id: 'c_3',
-               basicInfo: {
-                  title: 'UI/UX Design Masterclass',
-                  price: 89.0,
-                  category: 'Design',
-               },
-               price: { amount: 89.0 },
-               status: 'published',
-            },
-         ] as any,
-      },
-      {
-         _id: 'inst_3',
-         name: 'Wade Warren',
-         email: 'wade.warren@example.com',
-         courses: [], // Instructor with no courses
-      },
-      {
-         _id: 'inst_4',
-         name: 'Esther Howard',
-         email: 'esther.howard@gmail.com',
-         courses: [
-            {
-               _id: 'c_4',
-               basicInfo: {
-                  title: 'Digital Marketing 101',
-                  price: 25.0,
-                  category: 'Marketing',
-               },
-               price: { amount: 25.0 },
-               status: 'rejected',
-            },
-            {
-               _id: 'c_5',
-               basicInfo: {
-                  title: 'SEO Strategies 2025',
-                  price: 45.0,
-                  category: 'Marketing',
-               },
-               price: { amount: 45.0 },
-               status: 'review',
-            },
-         ] as any,
-      },
-      {
-         _id: 'inst_5',
-         name: 'Brooklyn Simmons',
-         email: 'brooklyn.s@example.com',
-         courses: [
-            {
-               _id: 'c_6',
-               basicInfo: {
-                  title: 'Flutter Mobile Dev',
-                  price: 59.99,
-                  category: 'Development',
-               },
-               price: { amount: 59.99 },
-               status: 'published',
-            },
-         ] as any,
-      },
-   ];
-
-   // Simple Search Logic
-   if (!name || name.trim() === '') {
-      return mockInstructors;
-   }
-
-   const lowerName = name.toLowerCase();
-   return mockInstructors.filter(
-      (inst) =>
-         inst.name.toLowerCase().includes(lowerName) ||
-         inst.email.toLowerCase().includes(lowerName)
+export const deleteInstructor = async (id: string) => {
+   const { data } = await apiClient.delete<{ status: string; message: string }>(
+      `/admin/instructors/${id}`
    );
+   return data;
 };
 
 // ==========================================
@@ -241,235 +124,66 @@ export interface DashboardOverviewDTO {
    recentActivities: RecentActivity[];
 }
 
-// Mock function for Dashboard Overview (Since backend is not ready)
+// Real Dashboard Overview
 export const getDashboardOverview = async () => {
-   /* // TODO: Uncomment when backend is ready
-   const { data } = await apiClient.get<{ status: string; data: DashboardOverviewDTO }>('/admin/dashboard/overview');
-   return data.data; 
-   */
-
-   // Returning Mock Data for now
-   await new Promise((resolve) => setTimeout(resolve, 1000));
-   return {
-      stats: {
-         pendingRequests: 12, // This could also be calculated from getJoinRequests().length
-         totalInstructors: 1240,
-         totalStudents: 45600,
-         activeCourses: 3800,
-      },
-      growthChart: [
-         { name: 'Jan', students: 400, instructors: 20 },
-         { name: 'Feb', students: 300, instructors: 15 },
-         { name: 'Mar', students: 550, instructors: 30 },
-         { name: 'Apr', students: 450, instructors: 25 },
-         { name: 'May', students: 600, instructors: 40 },
-         { name: 'Jun', students: 700, instructors: 50 },
-      ],
-      recentBookings: [
-         {
-            id: '1',
-            hall: 'Main Hall',
-            instructor: 'Kevin G.',
-            date: '2025-12-20',
-         },
-         {
-            id: '2',
-            hall: 'Lab 101',
-            instructor: 'Sara M.',
-            date: '2025-12-21',
-         },
-      ],
-      recentActivities: [
-         {
-            id: '1',
-            type: 'new_course',
-            user: 'Kevin Gilbert',
-            action: 'Submitted "Advanced React Patterns"',
-            time: 'Just now',
-         },
-         {
-            id: '2',
-            type: 'registration',
-            user: 'Sraboni A.',
-            action: 'New student registration',
-            time: '5 mins ago',
-         },
-         {
-            id: '3',
-            type: 'booking',
-            user: 'John Doe',
-            action: 'Requested "Main Conference Hall"',
-            time: '1 hour ago',
-         },
-      ],
-   } as DashboardOverviewDTO;
+   const { data } = await apiClient.get<{
+      status: string;
+      data: DashboardOverviewDTO;
+   }>('/admin/dashboard/overview');
+   return data.data;
 };
 
+// ==========================================
+//  STUDENTS MANAGEMENT
 // ==========================================
 
 export interface Student {
    _id: string;
-   name: string;
+   firstname: string;
+   lastname: string;
    email: string;
    phone?: string;
-   joinedAt: string;
-   enrolledCoursesCount: number;
+   createdAt: string;
+   role: string;
    avatar?: string;
 }
 
-export const searchStudents = async (query: string) => {
-   /* // REAL BACKEND CONNECTION
-   const { data } = await apiClient.get<{ status: string; data: Student[] }>('/admin/students', { params: { query } });
-   return data.data;
-   */
-
-   // MOCK DATA
-   await new Promise((resolve) => setTimeout(resolve, 800));
-
-   const mockStudents: Student[] = [
-      {
-         _id: 'st_1',
-         name: 'Sraboni A.',
-         email: 'sraboni@example.com',
-         phone: '+1234567890',
-         joinedAt: '2024-01-15',
-         enrolledCoursesCount: 4,
-         avatar: 'https://i.pravatar.cc/150?u=sraboni',
-      },
-      {
-         _id: 'st_2',
-         name: 'Arif B.',
-         email: 'arif@example.com',
-         phone: '+0987654321',
-         joinedAt: '2024-02-20',
-         enrolledCoursesCount: 2,
-      },
-      {
-         _id: 'st_3',
-         name: 'John Doe',
-         email: 'john.doe@test.com',
-         joinedAt: '2024-03-10',
-         enrolledCoursesCount: 0,
-      },
-      {
-         _id: 'st_4',
-         name: 'Jane Smith',
-         email: 'jane.smith@test.com',
-         phone: '+1122334455',
-         joinedAt: '2023-11-05',
-         enrolledCoursesCount: 7,
-         avatar: 'https://i.pravatar.cc/150?u=jane',
-      },
-      {
-         _id: 'st_5',
-         name: 'Michael Brown',
-         email: 'michael.b@test.com',
-         joinedAt: '2024-01-01',
-         enrolledCoursesCount: 1,
-      },
-   ];
-
-   if (!query || query.trim() === '') return mockStudents;
-
-   const lowerQuery = query.toLowerCase();
-   return mockStudents.filter(
-      (s) =>
-         s.name.toLowerCase().includes(lowerQuery) ||
-         s.email.toLowerCase().includes(lowerQuery)
+export const searchStudents = async (query?: string) => {
+   const { data } = await apiClient.get<{ status: string; data: Student[] }>(
+      '/admin/students',
+      { params: { search: query } }
    );
+   return data.data;
+};
+
+export const getStudentById = async (id: string) => {
+   const { data } = await apiClient.get<{
+      status: string;
+      data: any; // Can be typed as Student
+   }>(`/admin/students/${id}`);
+   return data.data;
+};
+
+export const deleteStudent = async (id: string) => {
+   await apiClient.delete(`/admin/students/${id}`);
 };
 
 // ==========================================
 //  ALL COURSES MANAGEMENT (Mocked)
 // ==========================================
 
-export const getAllCourses = async () => {
-   /* // REAL BACKEND CONNECTION
-   const { data } = await apiClient.get<{ status: string; data: CourseDTO[] }>('/admin/courses');
+export const getAllCourses = async (search?: string, status?: string) => {
+   const { data } = await apiClient.get<{ status: string; data: CourseDTO[] }>(
+      '/admin/courses',
+      {
+         params: { search, status },
+      }
+   );
    return data.data;
-   */
-
-   // MOCK DATA
-   await new Promise((resolve) => setTimeout(resolve, 1200));
-
-   return [
-      {
-         _id: '101',
-         basicInfo: {
-            title: 'Complete Python Bootcamp',
-            price: 19.99,
-            category: 'Development',
-         },
-         instructor: { name: 'Jose Portilla', email: 'jose@test.com' },
-         status: 'published', // Active Course
-         advancedInfo: {
-            thumbnail: {
-               url: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=400',
-            },
-            description: 'Learn Python like a Professional!',
-            whatYouWillLearn: ['Python Basics', 'OOP'],
-         },
-         curriculum: { sections: [{ title: 'Intro', lectures: [{}, {}] }] },
-      },
-      {
-         _id: '102',
-         basicInfo: {
-            title: 'UI/UX Design Masterclass',
-            price: 89.0,
-            category: 'Design',
-         },
-         instructor: { name: 'Brad Hussey', email: 'brad@test.com' },
-         status: 'review', // Needs Review
-         advancedInfo: {
-            thumbnail: {
-               url: 'https://images.unsplash.com/photo-1586717791821-3f44a5638d48?w=400',
-            },
-            description: 'Design beautiful interfaces.',
-            whatYouWillLearn: ['Figma', 'Wireframing'],
-         },
-         curriculum: { sections: [] },
-      },
-      {
-         _id: '103',
-         basicInfo: {
-            title: 'SEO Strategies 2024',
-            price: 0,
-            category: 'Marketing',
-         },
-         instructor: { name: 'Esther Howard', email: 'esther@test.com' },
-         status: 'rejected', // Rejected Course
-         advancedInfo: {
-            thumbnail: {
-               url: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=400',
-            },
-            description: 'SEO basics.',
-            whatYouWillLearn: [],
-         },
-         curriculum: { sections: [] },
-      },
-      {
-         _id: '104',
-         basicInfo: {
-            title: 'Flutter Mobile Dev',
-            price: 59.99,
-            category: 'Development',
-         },
-         instructor: { name: 'Cameron W.', email: 'cam@test.com' },
-         status: 'draft', // Draft by instructor
-         advancedInfo: {
-            thumbnail: {
-               url: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400',
-            },
-            description: 'Build apps.',
-            whatYouWillLearn: [],
-         },
-         curriculum: { sections: [] },
-      },
-   ] as unknown as CourseDTO[];
 };
 
 // ==========================================
-//  HALLS MANAGEMENT (Mocked)
+//  HALLS MANAGEMENT
 // ==========================================
 export interface HallSlot {
    id: string;
@@ -489,82 +203,44 @@ export interface HallFacilities {
 }
 
 export interface Hall {
-   id: string;
+   _id: string;
    name: string;
    capacity: number;
-   hourlyRate: number;
-   image?: string; // Backend URL
-   availableBooking: boolean; // True/False
-   facilities: HallFacilities;
-   slots: HallSlot[]; // Array of time slots
+   location: string;
+   pricePerHour: number;
+   images?: string[];
+   facilities: string[]; // Changed from object to array of strings
+   availability?: boolean;
 }
 
-// --- Mock Data ---
-
-export const getHalls = async (): Promise<Hall[]> => {
-   // await apiClient.get('/admin/halls');
-
-   // Simulate API Delay
-   await new Promise((resolve) => setTimeout(resolve, 800));
-
-   return [
-      {
-         id: '1',
-         name: 'Main Conference Hall',
-         capacity: 200,
-         hourlyRate: 150,
-         image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=500',
-         availableBooking: true,
-         facilities: {
-            hasAC: true,
-            hasWhiteboard: true,
-            hasInteractiveScreen: false,
-            hasSoundSystem: true,
-            hasMic: true,
-            hasProjector: true,
-            hasWifi: true,
-         },
-         slots: [
-            { id: 's1', day: 'Monday', startTime: '09:00', endTime: '12:00' },
-         ],
-      },
-      {
-         id: '2',
-         name: 'Training Lab A',
-         capacity: 30,
-         hourlyRate: 50,
-         image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500',
-         availableBooking: false,
-         facilities: {
-            hasAC: true,
-            hasWhiteboard: true,
-            hasInteractiveScreen: true,
-            hasSoundSystem: false,
-            hasMic: false,
-            hasProjector: true,
-            hasWifi: true,
-         },
-         slots: [],
-      },
-   ];
+// Real Halls API
+export const getHalls = async () => {
+   const { data } = await apiClient.get<{
+      status: string;
+      data: Hall[];
+   }>('/admin/halls');
+   return data.data;
 };
 
 export const createHall = async (data: any) => {
-   // In real backend, use FormData to send 'image' file
-   console.log('Creating Hall Payload:', data);
-   await new Promise((resolve) => setTimeout(resolve, 1000));
-   return { status: 'success', message: 'Hall created successfully' };
+   // Assuming data includes name, capacity, etc.
+   const { data: response } = await apiClient.post<{
+      status: string;
+      data: Hall;
+   }>('/admin/halls', data);
+   return response;
 };
 
 export const updateHall = async (id: string, data: any) => {
-   console.log(`Updating Hall ${id} Payload:`, data);
-   await new Promise((resolve) => setTimeout(resolve, 1000));
-   return { status: 'success', message: 'Hall updated successfully' };
+   const { data: response } = await apiClient.patch<{
+      status: string;
+      data: Hall;
+   }>(`/admin/halls/${id}`, data);
+   return response;
 };
 
 export const deleteHall = async (id: string) => {
-   await new Promise((resolve) => setTimeout(resolve, 800));
-   return { status: 'success', message: 'Hall deleted successfully' };
+   await apiClient.delete(`/admin/halls/${id}`);
 };
 
 // ==========================================
