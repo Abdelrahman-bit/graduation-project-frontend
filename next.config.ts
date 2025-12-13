@@ -1,7 +1,21 @@
 import type { NextConfig } from 'next';
 
 // Use environment variable for API URL, with localhost as default for development
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const getApiUrl = () => {
+   const envUrl = process.env.NEXT_PUBLIC_API_URL;
+   // Prevent redirect loop if API URL points to frontend
+   if (envUrl?.includes('graduation-project-frontend-livid.vercel.app')) {
+      return 'https://graduation-project-backend-nine.vercel.app/api';
+   }
+   return (
+      envUrl ||
+      (process.env.NODE_ENV === 'production'
+         ? 'https://graduation-project-backend-nine.vercel.app/api'
+         : 'http://localhost:5000/api')
+   );
+};
+
+const API_URL = getApiUrl();
 
 const nextConfig: NextConfig = {
    // Skip TypeScript errors during build for faster deployment
