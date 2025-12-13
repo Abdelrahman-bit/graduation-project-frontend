@@ -90,6 +90,7 @@ export function AblyProvider({ children }: AblyProviderProps) {
          },
          autoConnect: true,
          echoMessages: false,
+         queryTime: true, // Use server time to prevent clock skew issues
       });
 
       // Connection state handlers
