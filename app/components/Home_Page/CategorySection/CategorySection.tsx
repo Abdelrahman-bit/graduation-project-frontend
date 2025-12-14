@@ -8,7 +8,7 @@ import {
    AiOutlineDollarCircle,
    AiOutlineBarChart,
 } from 'react-icons/ai';
-import { FaLongArrowAltRight, FaHistory } from 'react-icons/fa';
+import { FaHistory } from 'react-icons/fa';
 import { GiMicroscope } from 'react-icons/gi';
 import { MdPalette } from 'react-icons/md';
 
@@ -112,18 +112,6 @@ export default function CategorySection() {
                      />
                   </Link>
                ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2 items-center justify-center pt-4">
-               <p className="text-gray-700 text-base font-normal">
-                  We have more category & subcategory.
-               </p>
-               <Link href="/categories" passHref>
-                  <div className="flex gap-2 items-center text-primary-500 font-semibold cursor-pointer text-base">
-                     <p>Browse All</p>
-                     <FaLongArrowAltRight size={18} />
-                  </div>
-               </Link>
             </div>
          </div>
       </section>

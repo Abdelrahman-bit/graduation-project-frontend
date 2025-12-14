@@ -793,76 +793,87 @@ export default function CourseDetailsPage({
                               </button>
                            )}
 
-                        {/* Student - Can Request Enrollment */}
+                        {/* Student with Approved Request - Prompt to use access code */}
                         {isAuthenticated &&
                            isStudent &&
-                           requestStatus !== 'pending' && (
-                              <>
-                                 <button
-                                    onClick={handleRequestEnroll}
-                                    disabled={requesting}
-                                    className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition-colors cursor-pointer shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
-                                 >
-                                    {requesting ? (
-                                       <>
-                                          <Loader2 className="w-5 h-5 animate-spin" />
-                                          Submitting...
-                                       </>
-                                    ) : (
-                                       'Request Enrollment'
-                                    )}
-                                 </button>
-
-                                 {/* Access Code Toggle */}
-                                 <button
-                                    onClick={() =>
-                                       setShowAccessCodeInput(
-                                          !showAccessCodeInput
-                                       )
-                                    }
-                                    className="w-full py-3 px-6 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-base rounded-lg transition-colors flex items-center justify-center gap-2"
-                                 >
-                                    <Ticket className="w-5 h-5 text-orange-500" />
-                                    {showAccessCodeInput
-                                       ? 'Hide Access Code'
-                                       : 'Have an Access Code?'}
-                                 </button>
-
-                                 {/* Access Code Input */}
-                                 {showAccessCodeInput && (
-                                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
-                                       <input
-                                          type="text"
-                                          value={accessCode}
-                                          onChange={(e) =>
-                                             setAccessCode(
-                                                e.target.value.toUpperCase()
-                                             )
-                                          }
-                                          placeholder="Enter your access code"
-                                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-center font-mono text-lg tracking-wider uppercase"
-                                          maxLength={12}
-                                       />
-                                       <button
-                                          onClick={handleRedeemCode}
-                                          disabled={
-                                             redeemingCode || !accessCode.trim()
-                                          }
-                                          className="w-full py-3 px-6 bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
-                                       >
-                                          {redeemingCode ? (
-                                             <>
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                                Redeeming...
-                                             </>
-                                          ) : (
-                                             'Redeem Code'
-                                          )}
-                                       </button>
-                                    </div>
-                                 )}
-                              </>
+                           requestStatus === 'approved' && (
+                              <div className="w-full py-4 px-6 bg-green-100 text-green-700 font-bold text-lg rounded-lg flex items-center justify-center gap-2 border border-green-300">
+                                 <CheckCircle className="w-5 h-5" />
+                                 Approved - Use Access Code Below
+                              </div>
                            )}
+
+                        {/* Student - Can Request Enrollment (only if no request or rejected) */}
+                        {isAuthenticated &&
+                           isStudent &&
+                           (!requestStatus || requestStatus === 'rejected') && (
+                              <button
+                                 onClick={handleRequestEnroll}
+                                 disabled={requesting}
+                                 className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition-colors cursor-pointer shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+                              >
+                                 {requesting ? (
+                                    <>
+                                       <Loader2 className="w-5 h-5 animate-spin" />
+                                       Submitting...
+                                    </>
+                                 ) : (
+                                    'Request Enrollment'
+                                 )}
+                              </button>
+                           )}
+
+                        {/* Access Code section - Show for all students (pending, approved, or no request) */}
+                        {isAuthenticated && isStudent && (
+                           <>
+                              {/* Access Code Toggle */}
+                              <button
+                                 onClick={() =>
+                                    setShowAccessCodeInput(!showAccessCodeInput)
+                                 }
+                                 className="w-full py-3 px-6 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-base rounded-lg transition-colors flex items-center justify-center gap-2"
+                              >
+                                 <Ticket className="w-5 h-5 text-orange-500" />
+                                 {showAccessCodeInput
+                                    ? 'Hide Access Code'
+                                    : 'Have an Access Code?'}
+                              </button>
+
+                              {/* Access Code Input */}
+                              {showAccessCodeInput && (
+                                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+                                    <input
+                                       type="text"
+                                       value={accessCode}
+                                       onChange={(e) =>
+                                          setAccessCode(
+                                             e.target.value.toUpperCase()
+                                          )
+                                       }
+                                       placeholder="Enter your access code"
+                                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-center font-mono text-lg tracking-wider uppercase"
+                                       maxLength={12}
+                                    />
+                                    <button
+                                       onClick={handleRedeemCode}
+                                       disabled={
+                                          redeemingCode || !accessCode.trim()
+                                       }
+                                       className="w-full py-3 px-6 bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                                    >
+                                       {redeemingCode ? (
+                                          <>
+                                             <Loader2 className="w-5 h-5 animate-spin" />
+                                             Redeeming...
+                                          </>
+                                       ) : (
+                                          'Redeem Code'
+                                       )}
+                                    </button>
+                                 </div>
+                              )}
+                           </>
+                        )}
 
                         {/* Wishlist Button for Students */}
                         {isStudent && (
