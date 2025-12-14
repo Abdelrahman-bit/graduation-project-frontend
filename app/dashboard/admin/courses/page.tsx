@@ -1,22 +1,46 @@
-import React from 'react';
-import AllCoursesList from './components/AllCoursesList';
+'use client';
 
-const AllCoursesPage = () => {
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import CourseRequestsTab from './components/CourseRequestsTab';
+import AllCoursesTab from './components/AllCoursesTab';
+
+export default function CoursesPage() {
    return (
-      <div className="p-6 md:p-8 space-y-6 min-h-screen bg-[#F5F7FA]">
-         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-            <div>
-               <h1 className="text-2xl font-bold text-gray-900">All Courses</h1>
-               <p className="text-sm text-gray-500 mt-1">
-                  Manage and view all courses on the platform.
-               </p>
-            </div>
-            {/* Optional: Add Filters here later */}
+      <div className="p-6 space-y-6">
+         <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+               Courses Management
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+               Overview of all courses and pending requests.
+            </p>
          </div>
 
-         <AllCoursesList />
+         <Tabs defaultValue="courses" className="w-full">
+            <TabsList className="bg-white border p-1 w-full max-w-md grid grid-cols-2">
+               <TabsTrigger
+                  value="courses"
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:text-orange-500 data-[state=active]:hover:text-white"
+               >
+                  All Courses
+               </TabsTrigger>
+               <TabsTrigger
+                  value="requests"
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white hover:text-orange-500 data-[state=active]:hover:text-white"
+               >
+                  Course Requests
+               </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="courses" className="mt-6">
+               <AllCoursesTab />
+            </TabsContent>
+
+            <TabsContent value="requests" className="mt-6">
+               <CourseRequestsTab />
+            </TabsContent>
+         </Tabs>
       </div>
    );
-};
-
-export default AllCoursesPage;
+}

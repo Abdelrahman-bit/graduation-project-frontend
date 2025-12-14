@@ -1,13 +1,14 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, GraduationCap } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 import { getSidebarItems } from '../dashboard/dashboardData';
 import { useQuery } from '@tanstack/react-query';
 import {
    getJoinRequests,
    getInReviewCourses,
 } from '@/app/services/adminService';
+import { getEnrollmentRequests } from '@/app/services/instructorService';
 
 interface SidebarProps {
    role: 'instructor' | 'student' | 'admin';
@@ -27,9 +28,16 @@ export default function Sidebar({ role, onLinkClick }: SidebarProps) {
       enabled: role === 'admin',
    });
 
+   const { data: enrollmentRequestsData } = useQuery({
+      queryKey: ['enrollmentRequests'],
+      queryFn: getEnrollmentRequests,
+      enabled: role === 'instructor',
+   });
+
    const navItems = getSidebarItems(role, {
       joinRequests: joinRequests?.length,
       courseRequests: courseRequests?.length,
+      enrollmentRequests: enrollmentRequestsData?.results,
    });
    const pathname = usePathname();
 
@@ -70,14 +78,6 @@ export default function Sidebar({ role, onLinkClick }: SidebarProps) {
                </Link>
             ))}
          </nav>
-
-         {/* Footer of Sidebar */}
-         <div className="p-6 border-t border-gray-800 shrink-0">
-            <button className="flex items-center gap-3 text-sm font-medium hover:text-white transition-colors w-full">
-               <LogOut size={20} />
-               Sign-out
-            </button>
-         </div>
       </aside>
    );
 }
