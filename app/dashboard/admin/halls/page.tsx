@@ -185,9 +185,10 @@ export default function HallsPage() {
                            <TableCell>
                               <div className="flex items-center gap-2 text-gray-600">
                                  <Banknote size={14} />
-                                 {hall.pricePerHour ||
-                                    (hall as any).hourlyPrice}{' '}
-                                 EGP
+                                 {(hall.pricePerHour ||
+                                    (hall as any).hourlyPrice) === 0
+                                    ? 'Free'
+                                    : `${hall.pricePerHour || (hall as any).hourlyPrice} EGP`}
                               </div>
                            </TableCell>
                            <TableCell>
@@ -234,6 +235,15 @@ export default function HallsPage() {
                                     >
                                        <Pencil className="mr-2 h-4 w-4" />
                                        Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                       <a
+                                          href={`/dashboard/admin/halls/${hall._id}`}
+                                          className="cursor-pointer"
+                                       >
+                                          <MapPin className="mr-2 h-4 w-4" />
+                                          View Details
+                                       </a>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                        className="text-red-600"

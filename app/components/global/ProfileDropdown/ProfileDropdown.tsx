@@ -13,6 +13,7 @@ import {
    Settings,
    GraduationCap,
    Heart,
+   Users,
 } from 'lucide-react';
 import { getUserProfile } from '@/app/services/userService';
 
@@ -80,6 +81,26 @@ export default function ProfileDropdown() {
                label: 'Dashboard',
             },
             {
+               href: '/dashboard/admin/instructors',
+               icon: Users,
+               label: 'Instructors',
+            },
+            {
+               href: '/dashboard/admin/courses',
+               icon: BookOpen,
+               label: 'All Courses',
+            },
+            {
+               href: '/dashboard/admin/students',
+               icon: GraduationCap,
+               label: 'Students',
+            },
+            {
+               href: '/dashboard/admin/halls',
+               icon: LayoutDashboard, // Or Building if imported
+               label: 'Halls',
+            },
+            {
                href: '/dashboard/admin/settings',
                icon: Settings,
                label: 'Settings',
@@ -98,6 +119,16 @@ export default function ProfileDropdown() {
                href: '/dashboard/instructor/courses',
                icon: BookOpen,
                label: 'My Courses',
+            },
+            {
+               href: '/dashboard/instructor/create-course',
+               icon: BookOpen, // Using BookOpen as proxy for PlusCircle if not imported
+               label: 'Create Course',
+            },
+            {
+               href: '/dashboard/instructor/halls',
+               icon: LayoutDashboard, // Using proxy icon
+               label: 'Book a Hall',
             },
             {
                href: '/dashboard/instructor',

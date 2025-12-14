@@ -11,3 +11,12 @@ export const applyForJob = async (values: {
       throw error;
    }
 };
+
+export const getMyCourses = async () => {
+   const { data } = await apiClient.get<{
+      status: string;
+      results: number;
+      data: any[]; // Or CourseDTO
+   }>('/courses');
+   return data.data;
+};

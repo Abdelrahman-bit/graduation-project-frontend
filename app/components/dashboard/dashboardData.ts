@@ -49,6 +49,11 @@ export const getSidebarItems = (
                href: '/dashboard/instructor/create-course',
             },
             {
+               label: 'Book a Hall',
+               icon: Building,
+               href: '/dashboard/instructor/halls',
+            },
+            {
                label: 'Messages',
                icon: MessageSquare,
                href: '/dashboard/instructor/messages',
@@ -89,6 +94,16 @@ export const getSidebarItems = (
                label: 'Halls',
                icon: Building,
                href: '/dashboard/admin/halls',
+            },
+            {
+               label: 'Halls Status',
+               icon: CalendarCheck,
+               href: '/dashboard/admin/halls/status',
+            },
+            {
+               label: 'Settings',
+               icon: Settings,
+               href: '/dashboard/admin/settings',
             },
          ];
          break;

@@ -218,7 +218,7 @@ export const getHalls = async () => {
    const { data } = await apiClient.get<{
       status: string;
       data: Hall[];
-   }>('/admin/halls');
+   }>('/hall'); // Changed from /admin/halls to /hall to allow Instructor access
    return data.data;
 };
 
@@ -227,7 +227,7 @@ export const createHall = async (data: any) => {
    const { data: response } = await apiClient.post<{
       status: string;
       data: Hall;
-   }>('/admin/halls', data);
+   }>('/hall', data);
    return response;
 };
 
@@ -235,12 +235,36 @@ export const updateHall = async (id: string, data: any) => {
    const { data: response } = await apiClient.patch<{
       status: string;
       data: Hall;
-   }>(`/admin/halls/${id}`, data);
+   }>(`/hall/${id}`, data);
    return response;
 };
 
 export const deleteHall = async (id: string) => {
-   await apiClient.delete(`/admin/halls/${id}`);
+   await apiClient.delete(`/hall/${id}`);
+};
+
+export const getHallDetails = async (id: string) => {
+   const { data: response } = await apiClient.get<{
+      status: string;
+      data: any; // Type strictly if possible
+   }>(`/hall/${id}`);
+   return response.data;
+};
+
+export const getHallStatus = async (date: string) => {
+   const { data: response } = await apiClient.get<{
+      status: string;
+      data: any[]; // List of halls with daySlots/dayBookings
+   }>(`/hall/status?date=${date}`);
+   return response.data;
+};
+
+export const deleteSlotsByDate = async (hallId: string, date: string) => {
+   const { data: response } = await apiClient.delete<{
+      status: string;
+      message: string;
+   }>(`/hall/${hallId}/slots?date=${date}`);
+   return response;
 };
 
 // ==========================================
@@ -253,6 +277,11 @@ export interface Booking {
    instructorId: string;
    instructorName: string;
    instructorAvatar?: string;
+   course?: {
+      basicInfo: {
+         title: string;
+      };
+   };
    title: string;
    date: string; // YYYY-MM-DD
    startTime: string;
@@ -263,77 +292,13 @@ export interface Booking {
    maxCapacity: number;
 }
 
-// Mock Bookings Database
-let MOCK_BOOKINGS_DB: Booking[] = [
-   {
-      id: 'b_1',
-      hallId: 'h_1',
-      hallName: 'Main Conference Hall',
-      instructorId: 'i_1',
-      instructorName: 'Kim Lyons',
-      instructorAvatar: 'https://i.pravatar.cc/150?u=kim',
-      title: 'React.js Summit 2025',
-      date: new Date().toISOString().split('T')[0],
-      startTime: '09:00',
-      endTime: '10:00',
-      status: 'approved',
-      type: 'event',
-      attendees: 45,
-      maxCapacity: 200,
-   },
-   {
-      id: 'b_2',
-      hallId: 'h_2',
-      hallName: 'Lab 101',
-      instructorId: 'i_2',
-      instructorName: 'Seth Farmer',
-      instructorAvatar: 'https://i.pravatar.cc/150?u=seth',
-      title: 'Python Workshop',
-      date: new Date().toISOString().split('T')[0],
-      startTime: '10:00',
-      endTime: '11:00',
-      status: 'pending',
-      type: 'class',
-      attendees: 12,
-      maxCapacity: 30,
-   },
-   {
-      id: 'b_3',
-      hallId: 'h_3',
-      hallName: 'Meeting Room A',
-      instructorId: 'i_3',
-      instructorName: 'Tatiana Rosser',
-      title: 'Instructor Sync',
-      date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // غداً
-      startTime: '14:00',
-      endTime: '15:00',
-      status: 'rejected',
-      type: 'maintenance',
-      attendees: 5,
-      maxCapacity: 10,
-   },
-];
+// Mock Bookings Database (Keeping for reference if needed, but createBooking is real now)
+let MOCK_BOOKINGS_DB: Booking[] = [];
 
 // 1. Get Bookings (Filter by Date & Search)
 export const getBookings = async (date: string, searchQuery: string = '') => {
-   await new Promise((resolve) => setTimeout(resolve, 500));
-
-   // 1. فلترة حسب التاريخ
-   let filtered = MOCK_BOOKINGS_DB.filter((b) => b.date === date);
-
-   // Search Filter
-   if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-         (b) =>
-            b.title.toLowerCase().includes(q) ||
-            b.instructorName.toLowerCase().includes(q) ||
-            b.hallName.toLowerCase().includes(q)
-      );
-   }
-
-   //time sorting
-   return filtered.sort((a, b) => a.startTime.localeCompare(b.startTime));
+   // ... keep validation/filter logic if needed or replace with real API
+   return [];
 };
 
 const isTimeOverlapping = (
@@ -346,54 +311,46 @@ const isTimeOverlapping = (
    return start1 < end2 && end1 > start2;
 };
 
-// 2. Create Booking (With Conflict Check)
-export const createBooking = async (data: Partial<Booking>) => {
-   await new Promise((resolve) => setTimeout(resolve, 800));
+// 2. Create Booking (Real API)
+export const createBooking = async (data: {
+   hall: string;
+   slot: string;
+   course: string;
+}) => {
+   const { data: response } = await apiClient.post<{
+      status: string;
+      data: Booking;
+   }>('/booking', { slot: data.slot, course: data.course }); // Backend uses /booking (singular)
+   return response;
+};
 
-   // 1.  (Conflict Check)
-   const hasConflict = MOCK_BOOKINGS_DB.some((booking) => {
-      if (booking.status === 'rejected' || booking.status === 'cancelled')
-         return false;
+// ==========================================
+//  SLOT MANAGEMENT
+// ==========================================
+export const createSlot = async (
+   hallId: string,
+   data: { startTime: Date | string; endTime: Date | string }
+) => {
+   const { data: response } = await apiClient.post<{
+      status: string;
+      data: HallSlot;
+   }>(`/hall/${hallId}/slots`, data);
+   return response;
+};
 
-      if (booking.hallId === data.hallId && booking.date === data.date) {
-         if (
-            isTimeOverlapping(
-               data.startTime!,
-               data.endTime!,
-               booking.startTime,
-               booking.endTime
-            )
-         ) {
-            return true;
-         }
-      }
-      return false;
-   });
-   //end conflict check
-   if (hasConflict) {
-      throw new Error('This hall is already booked for this time slot.');
-   }
+export const updateSlot = async (
+   id: string,
+   data: { startTime: Date | string; endTime: Date | string }
+) => {
+   const { data: response } = await apiClient.patch<{
+      status: string;
+      data: HallSlot;
+   }>(`/slot/${id}`, data);
+   return response;
+};
 
-   const newBooking: Booking = {
-      id: `b_${Date.now()}`,
-      hallId: data.hallId || 'h_temp',
-      instructorId: 'i_me',
-      instructorName: 'Current Admin',
-      instructorAvatar: '',
-      status: 'approved',
-      type: 'class',
-      attendees: 0,
-      maxCapacity: 50,
-      title: data.title || 'New Booking',
-      date: data.date || new Date().toISOString().split('T')[0],
-      startTime: data.startTime || '09:00',
-      endTime: data.endTime || '10:00',
-      hallName: data.hallName || 'General Hall',
-      ...data,
-   } as Booking;
-
-   MOCK_BOOKINGS_DB.push(newBooking);
-   return { status: 'success', message: 'Booking created successfully' };
+export const deleteSlot = async (id: string) => {
+   await apiClient.delete(`/slot/${id}`);
 };
 
 // 3. Update Status (Approve/Reject)
@@ -420,8 +377,12 @@ export const updateBookingDetails = async (
 };
 
 // 5. Delete Booking
-export const deleteBooking = async (id: string) => {
-   await new Promise((resolve) => setTimeout(resolve, 500));
-   MOCK_BOOKINGS_DB = MOCK_BOOKINGS_DB.filter((b) => b.id !== id);
-   return { status: 'success', message: 'Booking deleted' };
+// 5. Cancel/Delete Booking
+export const cancelBooking = async (id: string) => {
+   const { data } = await apiClient.delete<{ status: string; message: string }>(
+      `/booking/${id}`
+   );
+   return data;
 };
+
+export const deleteBooking = cancelBooking;

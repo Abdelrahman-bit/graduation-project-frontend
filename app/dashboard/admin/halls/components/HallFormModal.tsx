@@ -29,10 +29,13 @@ import { Hall } from '@/app/services/adminService';
 const hallSchema = z.object({
    name: z.string().min(3, 'Hall name is required'),
    capacity: z.coerce.number().min(5, 'Capacity must be at least 5'),
-   hourlyPrice: z.coerce.number().min(100, 'Minimum price is 100'),
+   hourlyPrice: z.coerce.number().min(0, 'Minimum price is 0'),
    description: z.string().optional(),
-   facilities: z.array(z.string()).optional(), // Simple array of strings for now
-   // Add other fields as needed
+   facilities: z.array(z.string()).optional(),
+   // Schedule Configuration (Optional for creation)
+   startTime: z.string().optional(),
+   endTime: z.string().optional(),
+   excludedDays: z.array(z.string()).optional(),
 });
 
 type HallFormValues = z.infer<typeof hallSchema>;
@@ -55,6 +58,16 @@ const FACILITY_OPTIONS = [
    { id: 'hasMic', label: 'Microphone' },
 ];
 
+const DAYS_OF_WEEK = [
+   'Sunday',
+   'Monday',
+   'Tuesday',
+   'Wednesday',
+   'Thursday',
+   'Friday',
+   'Saturday',
+];
+
 export const HallFormModal: React.FC<HallFormModalProps> = ({
    isOpen,
    onClose,
@@ -70,35 +83,21 @@ export const HallFormModal: React.FC<HallFormModalProps> = ({
          hourlyPrice: 150,
          description: '',
          facilities: [],
+         startTime: '09:00',
+         endTime: '17:00',
+         excludedDays: ['Friday'],
       },
    });
 
    useEffect(() => {
       if (isOpen) {
          if (initialData) {
-            // Map initialData facilities object to array of strings if needed,
-            // but backend model says facilities is an object with booleans.
-            // Let's adjust the form to handle boolean flags or string array.
-            // Backend Model: facilities: { hasAC: boolean, ... }
-            // API Service Type: facilities: string[] (I changed this in service previously)
-            // Let's stick to the SERVICE definition which implies I might need to transform data.
-            // Wait, looking at hallModel.js (Step 581), facilities IS an object with booleans.
-            // My adminService.ts (Step 579) defined it as string[].
-            // I should probbaly updated adminService to match backend model OR transform here.
-
-            // Transforming for the form:
-            const activeFacilities = [];
+            const activeFacilities: string[] = [];
             if (initialData.facilities) {
-               // Check if facilities is an array (from service type) or object (from backend)
-               // The service type I wrote earlier said string[].
-               // If the backend returns an object, the service type I wrote is WRONG.
-               // Let's assume for a second the backend returns the object.
-               // I will treat it as any for safe mapping here.
                const fac = initialData.facilities as any;
                if (Array.isArray(fac)) {
                   form.reset({ ...initialData, facilities: fac });
                } else {
-                  // Object format
                   FACILITY_OPTIONS.forEach((opt) => {
                      if (fac[opt.id]) activeFacilities.push(opt.id);
                   });
@@ -107,7 +106,7 @@ export const HallFormModal: React.FC<HallFormModalProps> = ({
                      capacity: initialData.capacity,
                      hourlyPrice:
                         initialData.pricePerHour ||
-                        (initialData as any).hourlyPrice, // Handle mapping
+                        (initialData as any).hourlyPrice,
                      description: (initialData as any).description || '',
                      facilities: activeFacilities,
                   });
@@ -128,31 +127,37 @@ export const HallFormModal: React.FC<HallFormModalProps> = ({
                hourlyPrice: 150,
                description: '',
                facilities: [],
+               startTime: '09:00',
+               endTime: '17:00',
+               excludedDays: ['Friday'],
             });
          }
       }
    }, [isOpen, initialData, form]);
 
    const handleSubmit = (values: HallFormValues) => {
-      // Transform facilities back to object if backend expects object
-      // Backend: facilities: { hasAC: true, ... }
-
-      const facilityObject = {};
+      const facilityObject: any = {};
       FACILITY_OPTIONS.forEach((opt) => {
          // @ts-ignore
-         facilityObject[opt.id] = values.facilities.includes(opt.id);
+         facilityObject[opt.id] = values.facilities?.includes(opt.id);
       });
 
       const payload = {
          ...values,
          facilities: facilityObject,
+         slotConfiguration: !initialData
+            ? {
+                 startTime: values.startTime,
+                 endTime: values.endTime,
+                 excludedDays: values.excludedDays,
+              }
+            : undefined,
       };
 
-      // @ts-ignore - passing the payload that matches backend expectation
+      // @ts-ignore
       onSubmit(payload);
    };
 
-   // Custom handling for checkbox group
    const handleFacilityChange = (checked: boolean, facilityId: string) => {
       const currentBy = form.getValues('facilities') || [];
       if (checked) {
@@ -161,6 +166,18 @@ export const HallFormModal: React.FC<HallFormModalProps> = ({
          form.setValue(
             'facilities',
             currentBy.filter((id) => id !== facilityId)
+         );
+      }
+   };
+
+   const handleDayChange = (checked: boolean, day: string) => {
+      const current = form.getValues('excludedDays') || [];
+      if (checked) {
+         form.setValue('excludedDays', [...current, day]);
+      } else {
+         form.setValue(
+            'excludedDays',
+            current.filter((d) => d !== day)
          );
       }
    };
@@ -204,7 +221,7 @@ export const HallFormModal: React.FC<HallFormModalProps> = ({
                            <FormItem>
                               <FormLabel>Capacity</FormLabel>
                               <FormControl>
-                                 <Input type="number" {...field} />
+                                 <Input type="number" min="0" {...field} />
                               </FormControl>
                               <FormMessage />
                            </FormItem>
@@ -218,7 +235,7 @@ export const HallFormModal: React.FC<HallFormModalProps> = ({
                            <FormItem>
                               <FormLabel>Hourly Rate (EGP)</FormLabel>
                               <FormControl>
-                                 <Input type="number" {...field} />
+                                 <Input type="number" min="0" {...field} />
                               </FormControl>
                               <FormMessage />
                            </FormItem>
@@ -270,6 +287,72 @@ export const HallFormModal: React.FC<HallFormModalProps> = ({
                         ))}
                      </div>
                   </div>
+
+                  {!initialData && (
+                     <div className="space-y-4 border-t pt-4">
+                        <h4 className="font-medium text-sm">
+                           Initial Schedule (Next 1 Month)
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4">
+                           <FormField
+                              control={form.control}
+                              name="startTime"
+                              render={({ field }) => (
+                                 <FormItem>
+                                    <FormLabel>Start Time</FormLabel>
+                                    <FormControl>
+                                       <Input type="time" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                 </FormItem>
+                              )}
+                           />
+                           <FormField
+                              control={form.control}
+                              name="endTime"
+                              render={({ field }) => (
+                                 <FormItem>
+                                    <FormLabel>End Time</FormLabel>
+                                    <FormControl>
+                                       <Input type="time" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                 </FormItem>
+                              )}
+                           />
+                        </div>
+
+                        <div className="space-y-2">
+                           <FormLabel className="text-xs text-gray-500">
+                              Excluded Days (No slots will be created)
+                           </FormLabel>
+                           <div className="grid grid-cols-3 gap-2">
+                              {DAYS_OF_WEEK.map((day) => (
+                                 <div
+                                    key={day}
+                                    className="flex items-center space-x-2"
+                                 >
+                                    <Switch
+                                       id={`exclude-${day}`}
+                                       checked={form
+                                          .watch('excludedDays')
+                                          ?.includes(day)}
+                                       onCheckedChange={(checked) =>
+                                          handleDayChange(checked, day)
+                                       }
+                                    />
+                                    <label
+                                       htmlFor={`exclude-${day}`}
+                                       className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    >
+                                       {day}
+                                    </label>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     </div>
+                  )}
 
                   <DialogFooter>
                      <Button type="button" variant="outline" onClick={onClose}>
