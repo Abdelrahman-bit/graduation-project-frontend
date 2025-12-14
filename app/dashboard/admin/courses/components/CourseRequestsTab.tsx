@@ -67,6 +67,8 @@ const CourseRequestsTab = () => {
       course: CourseDTO,
       status: 'published' | 'rejected'
    ) => {
+      // Close the course details modal first so confirmation modal is interactive
+      setSelectedCourse(null);
       handleActionClick(course, status);
    };
 

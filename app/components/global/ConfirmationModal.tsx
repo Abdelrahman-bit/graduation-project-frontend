@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, AlertTriangle } from 'lucide-react';
 
 interface ConfirmationModalProps {
@@ -26,7 +27,13 @@ export default function ConfirmationModal({
    variant = 'primary',
    isLoading = false,
 }: ConfirmationModalProps) {
-   if (!isOpen) return null;
+   const [mounted, setMounted] = useState(false);
+
+   useEffect(() => {
+      setMounted(true);
+   }, []);
+
+   if (!isOpen || !mounted) return null;
 
    const getVariantStyles = () => {
       switch (variant) {
@@ -50,8 +57,11 @@ export default function ConfirmationModal({
 
    const styles = getVariantStyles();
 
-   return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+   const modalContent = (
+      <div
+         className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+         onClick={onClose}
+      >
          <div
             className="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all animate-in fade-in zoom-in-95"
             onClick={(e) => e.stopPropagation()}
@@ -105,4 +115,7 @@ export default function ConfirmationModal({
          </div>
       </div>
    );
+
+   // Use portal to render outside of any parent Dialog's DOM hierarchy
+   return createPortal(modalContent, document.body);
 }
