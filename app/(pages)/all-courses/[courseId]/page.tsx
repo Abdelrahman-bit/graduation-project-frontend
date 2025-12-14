@@ -3,6 +3,7 @@ import { use, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
    Globe,
    Play,
@@ -18,6 +19,8 @@ import {
    ChevronUp,
    Star,
    X,
+   Ticket,
+   Loader2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -27,8 +30,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
    fetchCourseById,
    fetchPublishedCourses,
-   enrollInCourse,
    checkEnrollment,
+   requestCourseEnrollment,
+   getEnrollmentRequestStatus,
+   redeemAccessCode,
 } from '@/app/services/courses';
 import CourseDetailsSkeleton from '@/app/components/all-courses/ui/CourseDetailsSkeleton';
 import CourseListCard from '@/app/components/all-courses/ui/CourseListCard';
@@ -51,11 +56,16 @@ export default function CourseDetailsPage({
    } = useBearStore();
    const isWishlisted = isCourseInWishlist(courseId);
    const isStudent = user?.role === 'student';
+   const router = useRouter();
+
    const [openSections, setOpenSections] = useState<string[]>([]);
    const [initialSectionOpened, setInitialSectionOpened] = useState(false);
    const [isEnrolled, setIsEnrolled] = useState(false);
    const [showTrailerModal, setShowTrailerModal] = useState(false);
-   const [enrolling, setEnrolling] = useState(false);
+   const [requesting, setRequesting] = useState(false);
+   const [showAccessCodeInput, setShowAccessCodeInput] = useState(false);
+   const [accessCode, setAccessCode] = useState('');
+   const [redeemingCode, setRedeemingCode] = useState(false);
 
    // Fetch course details
    const { data, isLoading, isError, error } = useQuery({
@@ -91,10 +101,21 @@ export default function CourseDetailsPage({
    const { data: enrollmentStatus, refetch: refetchEnrollment } = useQuery({
       queryKey: ['enrollment', courseId],
       queryFn: () => checkEnrollment(courseId),
-      enabled: isAuthenticated && !!courseId,
+      enabled: isAuthenticated && isStudent && !!courseId,
       retry: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
    });
+
+   // Check enrollment request status
+   const { data: requestStatusData, refetch: refetchRequestStatus } = useQuery({
+      queryKey: ['enrollmentRequest', courseId],
+      queryFn: () => getEnrollmentRequestStatus(courseId),
+      enabled: isAuthenticated && isStudent && !!courseId,
+      retry: false,
+      staleTime: 5 * 60 * 1000,
+   });
+
+   const requestStatus = requestStatusData?.data?.requestStatus;
 
    // Update isEnrolled state when enrollment status changes
    useEffect(() => {
@@ -103,25 +124,57 @@ export default function CourseDetailsPage({
       }
    }, [enrollmentStatus]);
 
-   // Handle enrollment
-   const handleEnroll = async () => {
+   // Handle enrollment request
+   const handleRequestEnroll = async () => {
       if (!isAuthenticated) {
-         toast.error('You must login first');
+         router.push('/login');
          return;
       }
 
-      setEnrolling(true);
+      if (!isStudent) {
+         toast.error('Only students can enroll in courses');
+         return;
+      }
+
+      setRequesting(true);
       try {
-         await enrollInCourse(courseId);
-         setIsEnrolled(true);
-         refetchEnrollment();
+         await requestCourseEnrollment(courseId);
+         toast.success(
+            'Enrollment request submitted! You will receive an email once approved.'
+         );
+         refetchRequestStatus();
       } catch (error: any) {
-         console.error('Enrollment error:', error);
+         console.error('Request error:', error);
          toast.error(
-            error?.response?.data?.message || 'Failed to enroll in course'
+            error?.response?.data?.message || 'Failed to submit request'
          );
       } finally {
-         setEnrolling(false);
+         setRequesting(false);
+      }
+   };
+
+   // Handle access code redemption
+   const handleRedeemCode = async () => {
+      if (!accessCode.trim()) {
+         toast.error('Please enter an access code');
+         return;
+      }
+
+      setRedeemingCode(true);
+      try {
+         await redeemAccessCode(accessCode.trim());
+         toast.success('Access code redeemed! You are now enrolled.');
+         setIsEnrolled(true);
+         setShowAccessCodeInput(false);
+         setAccessCode('');
+         refetchEnrollment();
+      } catch (error: any) {
+         console.error('Redeem error:', error);
+         toast.error(
+            error?.response?.data?.message || 'Invalid or expired access code'
+         );
+      } finally {
+         setRedeemingCode(false);
       }
    };
 
@@ -703,17 +756,115 @@ export default function CourseDetailsPage({
                      )}
                   </div>
 
-                  {/* Enroll Button */}
+                  {/* Enrollment Section */}
                   {!isEnrolled && (
                      <div className="mb-8 flex flex-col gap-3">
-                        <button
-                           onClick={handleEnroll}
-                           disabled={enrolling}
-                           className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition-colors cursor-pointer shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
-                        >
-                           {enrolling ? 'Enrolling...' : 'Enroll Now'}
-                        </button>
+                        {/* Guest User - Login to Enroll */}
+                        {!isAuthenticated && (
+                           <button
+                              onClick={() => router.push('/login')}
+                              className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg rounded-lg transition-colors cursor-pointer shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+                           >
+                              Login to Enroll
+                           </button>
+                        )}
 
+                        {/* Non-Student - Disabled */}
+                        {isAuthenticated && !isStudent && (
+                           <button
+                              disabled
+                              className="w-full py-4 px-6 bg-gray-300 text-gray-500 font-bold text-lg rounded-lg cursor-not-allowed flex items-center justify-center gap-2"
+                              title="Only students can enroll in courses"
+                           >
+                              Students Only
+                           </button>
+                        )}
+
+                        {/* Student with Pending Request */}
+                        {isAuthenticated &&
+                           isStudent &&
+                           requestStatus === 'pending' && (
+                              <button
+                                 disabled
+                                 className="w-full py-4 px-6 bg-yellow-100 text-yellow-700 font-bold text-lg rounded-lg cursor-not-allowed flex items-center justify-center gap-2 border border-yellow-300"
+                              >
+                                 <Clock className="w-5 h-5" />
+                                 Waiting for Approval
+                              </button>
+                           )}
+
+                        {/* Student - Can Request Enrollment */}
+                        {isAuthenticated &&
+                           isStudent &&
+                           requestStatus !== 'pending' && (
+                              <>
+                                 <button
+                                    onClick={handleRequestEnroll}
+                                    disabled={requesting}
+                                    className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold text-lg rounded-lg transition-colors cursor-pointer shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+                                 >
+                                    {requesting ? (
+                                       <>
+                                          <Loader2 className="w-5 h-5 animate-spin" />
+                                          Submitting...
+                                       </>
+                                    ) : (
+                                       'Request Enrollment'
+                                    )}
+                                 </button>
+
+                                 {/* Access Code Toggle */}
+                                 <button
+                                    onClick={() =>
+                                       setShowAccessCodeInput(
+                                          !showAccessCodeInput
+                                       )
+                                    }
+                                    className="w-full py-3 px-6 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-base rounded-lg transition-colors flex items-center justify-center gap-2"
+                                 >
+                                    <Ticket className="w-5 h-5 text-orange-500" />
+                                    {showAccessCodeInput
+                                       ? 'Hide Access Code'
+                                       : 'Have an Access Code?'}
+                                 </button>
+
+                                 {/* Access Code Input */}
+                                 {showAccessCodeInput && (
+                                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+                                       <input
+                                          type="text"
+                                          value={accessCode}
+                                          onChange={(e) =>
+                                             setAccessCode(
+                                                e.target.value.toUpperCase()
+                                             )
+                                          }
+                                          placeholder="Enter your access code"
+                                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-center font-mono text-lg tracking-wider uppercase"
+                                          maxLength={12}
+                                       />
+                                       <button
+                                          onClick={handleRedeemCode}
+                                          disabled={
+                                             redeemingCode || !accessCode.trim()
+                                          }
+                                          className="w-full py-3 px-6 bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+                                       >
+                                          {redeemingCode ? (
+                                             <>
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                                Redeeming...
+                                             </>
+                                          ) : (
+                                             'Redeem Code'
+                                          )}
+                                       </button>
+                                    </div>
+                                 )}
+                              </>
+                           )}
+
+                        {/* Wishlist Button for Students */}
                         {isStudent && (
                            <button
                               onClick={() => {

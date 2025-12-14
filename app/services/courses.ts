@@ -296,3 +296,62 @@ export const getCourseProgress = async (courseId: string) => {
       return null;
    }
 };
+
+// ===== Enrollment Request Services =====
+
+export interface EnrollmentRequestStatusResponse {
+   status: string;
+   data: {
+      hasRequest: boolean;
+      requestStatus: 'pending' | 'approved' | 'rejected' | null;
+   };
+}
+
+export const requestCourseEnrollment = async (
+   courseId: string
+): Promise<EnrollmentResponse> => {
+   const url = `/enrollment/requestEnroll/${courseId}`;
+   console.log('📩 Requesting enrollment for course:', courseId);
+
+   const { data } = await apiClient.post<EnrollmentResponse>(url);
+   console.log('✅ Enrollment request response:', data);
+   return data;
+};
+
+export const getEnrollmentRequestStatus = async (
+   courseId: string
+): Promise<EnrollmentRequestStatusResponse> => {
+   try {
+      const url = `/enrollment/my-request/${courseId}`;
+      const { data } =
+         await apiClient.get<EnrollmentRequestStatusResponse>(url);
+      return data;
+   } catch (error: any) {
+      // If 401/403, user is not logged in or not a student
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+         return {
+            status: 'success',
+            data: { hasRequest: false, requestStatus: null },
+         };
+      }
+      throw error;
+   }
+};
+
+export interface RedeemCodeResponse {
+   status: string;
+   message: string;
+}
+
+export const redeemAccessCode = async (
+   accessKey: string
+): Promise<RedeemCodeResponse> => {
+   const url = `/redeem`;
+   console.log('🔑 Redeeming access code');
+
+   const { data } = await apiClient.post<RedeemCodeResponse>(url, {
+      accessKey,
+   });
+   console.log('✅ Redeem response:', data);
+   return data;
+};

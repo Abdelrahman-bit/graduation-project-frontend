@@ -8,6 +8,7 @@ import {
    getJoinRequests,
    getInReviewCourses,
 } from '@/app/services/adminService';
+import { getEnrollmentRequests } from '@/app/services/instructorService';
 
 interface SidebarProps {
    role: 'instructor' | 'student' | 'admin';
@@ -27,9 +28,16 @@ export default function Sidebar({ role, onLinkClick }: SidebarProps) {
       enabled: role === 'admin',
    });
 
+   const { data: enrollmentRequestsData } = useQuery({
+      queryKey: ['enrollmentRequests'],
+      queryFn: getEnrollmentRequests,
+      enabled: role === 'instructor',
+   });
+
    const navItems = getSidebarItems(role, {
       joinRequests: joinRequests?.length,
       courseRequests: courseRequests?.length,
+      enrollmentRequests: enrollmentRequestsData?.results,
    });
    const pathname = usePathname();
 

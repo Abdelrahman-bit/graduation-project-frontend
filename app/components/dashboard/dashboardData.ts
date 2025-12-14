@@ -21,6 +21,7 @@ export const getSidebarItems = (
       joinRequests?: number;
       courseRequests?: number;
       bookingRequests?: number;
+      enrollmentRequests?: number;
    }
 ) => {
    const commonItems = [
@@ -34,7 +35,7 @@ export const getSidebarItems = (
       case 'instructor':
          items = [
             {
-               label: 'dashboard',
+               label: 'Dashboard',
                icon: LayoutDashboard,
                href: '/dashboard/instructor',
             },
@@ -42,6 +43,12 @@ export const getSidebarItems = (
                label: 'My Courses',
                icon: BookOpen,
                href: '/dashboard/instructor/courses',
+            },
+            {
+               label: 'Enrollment Requests',
+               icon: UserPlus,
+               href: '/dashboard/instructor/enrollment-requests',
+               badge: counts?.enrollmentRequests,
             },
             {
                label: 'Create New Course',
@@ -59,7 +66,7 @@ export const getSidebarItems = (
                href: '/dashboard/instructor/messages',
             },
             {
-               label: 'settings',
+               label: 'Settings',
                icon: Settings,
                href: '/dashboard/instructor/settings',
             },
