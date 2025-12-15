@@ -9,11 +9,19 @@ import {
    MessageSquare,
    Wallet,
    Users,
+   GraduationCap,
+   Building,
+   CalendarCheck,
+   LogOut,
 } from 'lucide-react';
 
 export const getSidebarItems = (
    role: 'instructor' | 'student' | 'admin',
-   counts?: { joinRequests?: number; courseRequests?: number }
+   counts?: {
+      joinRequests?: number;
+      courseRequests?: number;
+      bookingRequests?: number;
+   }
 ) => {
    const commonItems = [
       { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -26,9 +34,9 @@ export const getSidebarItems = (
       case 'instructor':
          items = [
             {
-               label: 'Create New Course',
-               icon: PlusCircle,
-               href: '/dashboard/instructor/create-course',
+               label: 'dashboard',
+               icon: LayoutDashboard,
+               href: '/dashboard/instructor',
             },
             {
                label: 'My Courses',
@@ -36,30 +44,30 @@ export const getSidebarItems = (
                href: '/dashboard/instructor/courses',
             },
             {
+               label: 'Create New Course',
+               icon: PlusCircle,
+               href: '/dashboard/instructor/create-course',
+            },
+            {
                label: 'Messages',
                icon: MessageSquare,
                href: '/dashboard/instructor/messages',
-            },
-            {
-               label: 'Earnings',
-               icon: Wallet,
-               href: '/dashboard/instructor/earnings',
             },
             {
                label: 'settings',
                icon: Settings,
                href: '/dashboard/instructor/settings',
             },
-            {
-               label: 'dashboard',
-               icon: LayoutDashboard,
-               href: '/dashboard/instructor',
-            },
          ];
          break;
 
       case 'admin':
          items = [
+            {
+               label: 'Dashboard',
+               icon: LayoutDashboard,
+               href: '/dashboard/admin',
+            },
             {
                label: 'Join Requests',
                icon: UserPlus,
@@ -77,7 +85,6 @@ export const getSidebarItems = (
                icon: Users,
                href: '/dashboard/admin/instructors',
             },
-            ,
          ];
          break;
 

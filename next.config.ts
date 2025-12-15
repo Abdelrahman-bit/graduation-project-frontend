@@ -15,7 +15,31 @@ const nextConfig: NextConfig = {
             protocol: 'https',
             hostname: 'source.unsplash.com',
          },
+         {
+            protocol: 'https',
+            hostname: 'res.cloudinary.com',
+         },
+         {
+            protocol: 'https',
+            hostname: 'avatars.githubusercontent.com',
+         },
+         {
+            protocol: 'https',
+            hostname: 'ui-avatars.com',
+         },
+         {
+            protocol: 'https',
+            hostname: 'github.com',
+         },
       ],
+   },
+   async rewrites() {
+      return [
+         {
+            source: '/api/chat',
+            destination: 'http://localhost:5000/api/chat',
+         },
+      ];
    },
 };
 

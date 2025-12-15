@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 import useBearStore from '@/app/store/useStore';
 import { login } from '@/app/services/authService';
 
@@ -36,18 +37,27 @@ export default function LoginForm() {
       if (!validate()) return;
       setSubmitting(true);
       try {
-         const { token, user } = await login({ email, password, remember });
+         const response = await login({ email, password, remember });
+         const { token } = response;
+         // Check for user in response.user or response.data.user
+         const user = response.user || response.data?.user;
+
          localStorage.setItem('token', token);
-         localStorage.setItem('user', JSON.stringify(user));
+         if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+         }
+         // Decode the token to get user information, including the role
+         const decodedToken: { role: string } = jwtDecode(token);
+         const userRole = decodedToken.role;
 
          // Initialize auth state in Zustand store before navigation
          initializeAuth();
 
-         if (user.role === 'student') {
-            router.push('/courses');
-         } else if (user.role === 'instructor') {
+         if (userRole === 'student') {
+            router.push('/student/courses');
+         } else if (userRole === 'instructor') {
             router.push('/dashboard/instructor');
-         } else if (user.role === 'admin') {
+         } else if (userRole === 'admin') {
             router.push('/dashboard/admin');
          }
       } catch (err: any) {

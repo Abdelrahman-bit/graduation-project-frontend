@@ -3,26 +3,48 @@
 // 1. Define the shape of your state
 export interface User {
    id: number;
-   name: string;
+   name?: string;
+   firstName?: string;
+   lastName?: string;
    email: string;
    role: 'student' | 'instructor' | 'admin';
    avatar?: string;
 }
 
+export interface Course {
+   id: string; // or _id, mapping to be handled
+   _id?: string;
+   title: string;
+   image?: string; // or coverImage
+   coverImage?: string;
+   category?: string;
+   instructor?: {
+      firstname: string;
+      lastname: string;
+   };
+   progress?: number;
+   price?: number;
+}
+
 export interface BearState {
-   count: number;
    user: User | null;
    isAuthenticated: boolean;
    loading: boolean;
+   wishlist: Course[];
+   enrolledCourseIds: string[];
 }
 
 // 2. Define the shape of your actions (functions)
 export interface BearActions {
-   increment: (by: number) => void;
-   decrement: () => void;
    login: (userData: User) => void;
    logout: () => void;
-   initializeAuth: () => void;
+   initializeAuth: () => Promise<void>;
+   fetchWishlist: () => Promise<void>;
+   fetchEnrolledCourses: () => Promise<void>;
+   addToWishlist: (courseId: string) => Promise<void>;
+   removeFromWishlist: (courseId: string) => Promise<void>;
+   isCourseInWishlist: (courseId: string) => boolean;
+   isCourseEnrolled: (courseId: string) => boolean;
 }
 
 // 3. Combine State and Actions for the final store signature
@@ -73,6 +95,7 @@ export interface Lecture {
    description: string;
    notes: string;
    video?: File | UploadedMedia | null;
+   attachments?: { title: string; file: UploadedMedia }[];
    order?: number;
 }
 

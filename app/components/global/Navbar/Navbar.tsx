@@ -9,10 +9,25 @@ import Button from '../Button/Button';
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown';
 import useBearStore from '@/app/store/useStore';
 
+import { IoMdHeartEmpty } from 'react-icons/io';
+
 export default function Navbar() {
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-   const { user, isAuthenticated, initializeAuth } = useBearStore();
+   const [isHydrated, setIsHydrated] = useState(false);
+   const { user, isAuthenticated, loading, initializeAuth, wishlist } =
+      useBearStore();
 
+   // console.log('Navbar State:', { isAuthenticated, loading, user: !!user, isHydrated });
+
+   // Handle hydration mismatch
+   useEffect(() => {
+      const timer = setTimeout(() => {
+         setIsHydrated(true);
+      }, 0);
+      return () => clearTimeout(timer);
+   }, []);
+
+   // Initialize auth
    useEffect(() => {
       initializeAuth();
    }, [initializeAuth]);
@@ -26,7 +41,7 @@ export default function Navbar() {
                   <Link href="/">Home</Link>
                </li>
                <li>
-                  <Link href="/courses">Courses</Link>
+                  <Link href="/all-courses">Courses</Link>
                </li>
                <li>
                   <Link href="/about">About</Link>
@@ -37,18 +52,16 @@ export default function Navbar() {
             </ul>
             <ul className="flex gap-8 p-4">
                <li>
-                  {/* //TODO */}
                   <Link href="/mode">Dark</Link>
                </li>
                <li>
-                  {/* //TODO */}
                   <Link href="/language">English</Link>
                </li>
             </ul>
          </nav>
 
          {/* Main NavBar  */}
-         <nav className="flex justify-between items-center px-4 md:px-8 py-4 border-b-2 border-gray-scale-100">
+         <nav className="relative z-[100] flex justify-between items-center px-4 md:px-8 py-4 border-b-2 border-gray-scale-100">
             {/* Left Section */}
             <div className="flex gap-3 md:gap-6 items-center flex-1">
                <Link href="/">
@@ -90,10 +103,29 @@ export default function Navbar() {
                   <button>
                      <IoMdNotificationsOutline size={24} />
                   </button>
+                  {isAuthenticated && user?.role === 'student' && (
+                     <Link
+                        href="/student/wishlist"
+                        className="relative hover:text-orange-500 transition-colors"
+                     >
+                        <IoMdHeartEmpty size={24} />
+                        {wishlist.length > 0 && (
+                           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[10px] text-white">
+                              {wishlist.length}
+                           </span>
+                        )}
+                     </Link>
+                  )}
                </div>
 
                {/* Auth Section */}
-               {isAuthenticated && user ? (
+               {!isHydrated || loading ? (
+                  // Skeleton for auth buttons while loading
+                  <div className="flex gap-3 items-center">
+                     <div className="hidden sm:block h-10 w-36 bg-gray-200 rounded animate-pulse" />
+                     <div className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
+                  </div>
+               ) : isAuthenticated && user ? (
                   <ProfileDropdown />
                ) : (
                   <>
@@ -172,15 +204,24 @@ export default function Navbar() {
                   </div>
 
                   {/* Mobile Auth Buttons */}
-                  {!isAuthenticated && (
+                  {loading ? (
                      <div className="flex flex-col gap-2 border-t pt-4 sm:hidden">
-                        <Link
-                           href="/auth/signup"
-                           onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                           <Button text="Create an Account" type="secondary" />
-                        </Link>
+                        <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
                      </div>
+                  ) : (
+                     !isAuthenticated && (
+                        <div className="flex flex-col gap-2 border-t pt-4 sm:hidden">
+                           <Link
+                              href="/auth/signup"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                           >
+                              <Button
+                                 text="Create an Account"
+                                 type="secondary"
+                              />
+                           </Link>
+                        </div>
+                     )
                   )}
                </div>
             </div>
